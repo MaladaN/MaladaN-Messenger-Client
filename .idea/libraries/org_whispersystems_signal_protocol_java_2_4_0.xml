@@ -1,0 +1,12 @@
+<component name="libraryTable">
+  <library name="org.whispersystems:signal-protocol-java:2.4.0" type="repository">
+    <properties maven-id="org.whispersystems:signal-protocol-java:2.4.0" />
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/org/whispersystems/signal-protocol-java/2.4.0/signal-protocol-java-2.4.0.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/org/whispersystems/curve25519-java/0.3.0/curve25519-java-0.3.0.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/com/google/protobuf/protobuf-java/2.5.0/protobuf-java-2.5.0.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
