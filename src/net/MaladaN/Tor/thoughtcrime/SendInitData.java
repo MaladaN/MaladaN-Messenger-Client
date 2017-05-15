@@ -33,7 +33,7 @@ public class SendInitData implements java.io.Serializable {
     }
 
     public ServerResponsePreKeyBundle getServerResponsePreKeyBundle() {
-        int randomPreKeyIdPuller = ThreadLocalRandom.current().nextInt(0, preKeys.size() + 1);
+        int randomPreKeyIdPuller = ThreadLocalRandom.current().nextInt(0, preKeys.size());
         return new ServerResponsePreKeyBundle(registrationId, preKeys.get(randomPreKeyIdPuller), signedPreKeyId, signedPreKeyPublic, signedPreKeySignature, identityKey);
 
     }
