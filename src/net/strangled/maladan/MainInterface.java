@@ -1,6 +1,5 @@
 package net.strangled.maladan;
 
-//http://stackoverflow.com/questions/19588029/customize-listview-in-javafx-with-fxml
 
 import javafx.fxml.FXML;
 import javafx.scene.control.ListView;
