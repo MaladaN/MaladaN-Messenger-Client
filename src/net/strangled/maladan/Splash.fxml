@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
@@ -15,7 +16,11 @@
             <ImageView>
                 <Image url="file:./ico/Exposed_Conscious.png"/>
             </ImageView>
-            <Label text="Connecting To Server..." styleClass="textStyle"/>
+            <Label text="Connecting To Server..." styleClass="textStyle">
+                <padding>
+                    <Insets top="10"/>
+                </padding>
+            </Label>
         </VBox>
     </center>
 

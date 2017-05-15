@@ -14,9 +14,8 @@
     </stylesheets>
     <top>
         <GridPane styleClass="rootWindow, mainInterface">
-            <ImageView translateX="55">
-                <Image requestedHeight="100.5" requestedWidth="127.5" smooth="true"
-                       url="file:./ico/Exposed_Conscious.png"/>
+            <ImageView translateX="75">
+                <Image url="file:./ico/MainInterfaceIcon.png"/>
             </ImageView>
         </GridPane>
     </top>
@@ -28,7 +27,7 @@
     </center>
     <bottom>
         <HBox alignment="CENTER" styleClass="rootWindow, mainInterface">
-            <TextField fx:id="messageInput" prefHeight="25.0" prefWidth="550"/>
+            <TextField fx:id="messageInput" prefHeight="25.0" prefWidth="550" styleClass="mainInterface"/>
         </HBox>
     </bottom>
 </BorderPane>
