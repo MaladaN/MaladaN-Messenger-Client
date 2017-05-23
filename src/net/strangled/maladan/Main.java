@@ -80,7 +80,7 @@ public class Main extends Application {
             try {
                 t1.join();
 
-                Runnable runLater = () -> new Main().startLoginStage();
+                Runnable runLater = this::startLoginStage;
 
                 Platform.runLater(runLater);
             } catch (Exception e) {

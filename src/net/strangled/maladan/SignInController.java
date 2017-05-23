@@ -198,6 +198,7 @@ public class SignInController {
         Parent root = FXMLLoader.load(getClass().getResource("MainInterface.fxml"));
         Scene scene = new Scene(root, 900, 600);
         stage.setResizable(true);
+
         stage.setScene(scene);
         stage.show();
 
