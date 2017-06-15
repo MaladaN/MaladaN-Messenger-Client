@@ -3,6 +3,7 @@ package net.strangled.maladan;
 
 import net.MaladaN.Tor.thoughtcrime.ServerResponsePreKeyBundle;
 import net.MaladaN.Tor.thoughtcrime.SignalCrypto;
+import net.strangled.maladan.serializables.*;
 import org.whispersystems.libsignal.SignalProtocolAddress;
 
 import javax.xml.bind.DatatypeConverter;

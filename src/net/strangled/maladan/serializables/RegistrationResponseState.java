@@ -1,4 +1,4 @@
-package net.strangled.maladan;
+package net.strangled.maladan.serializables;
 
 public class RegistrationResponseState implements java.io.Serializable {
     private boolean validRegistration;

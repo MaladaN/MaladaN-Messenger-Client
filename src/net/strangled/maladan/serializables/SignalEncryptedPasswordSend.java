@@ -1,4 +1,4 @@
-package net.strangled.maladan;
+package net.strangled.maladan.serializables;
 
 public class SignalEncryptedPasswordSend implements java.io.Serializable {
     //Used to send the password for a new account, after it has been created using ServerInit.

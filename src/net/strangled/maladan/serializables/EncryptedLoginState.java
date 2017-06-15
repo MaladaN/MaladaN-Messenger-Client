@@ -1,4 +1,4 @@
-package net.strangled.maladan;
+package net.strangled.maladan.serializables;
 
 
 public class EncryptedLoginState implements java.io.Serializable {

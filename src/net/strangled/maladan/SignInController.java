@@ -12,6 +12,8 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import net.MaladaN.Tor.thoughtcrime.SignalCrypto;
+import net.strangled.maladan.serializables.ServerInit;
+import net.strangled.maladan.serializables.ServerLogin;
 import org.whispersystems.libsignal.SignalProtocolAddress;
 
 import javax.xml.bind.DatatypeConverter;
