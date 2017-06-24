@@ -1,6 +1,7 @@
 package net.strangled.maladan;
 
 import net.MaladaN.Tor.thoughtcrime.GetSQLConnection;
+import net.strangled.maladan.serializables.User;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

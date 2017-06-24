@@ -14,6 +14,7 @@ import javafx.stage.Stage;
 import net.MaladaN.Tor.thoughtcrime.SignalCrypto;
 import net.strangled.maladan.serializables.ServerInit;
 import net.strangled.maladan.serializables.ServerLogin;
+import net.strangled.maladan.serializables.User;
 import org.whispersystems.libsignal.SignalProtocolAddress;
 
 import javax.xml.bind.DatatypeConverter;
