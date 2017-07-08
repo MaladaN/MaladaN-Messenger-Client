@@ -8,7 +8,7 @@
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
 <?import java.net.URL?>
-<BorderPane xmlns:fx="null" fx:controller="net.strangled.maladan.MainInterface" styleClass="rootWindow">
+<BorderPane xmlns:fx="null" fx:controller="net.strangled.maladan.gui.MainInterface" styleClass="rootWindow">
     <stylesheets>
         <URL value="@loginRegister.css"/>
     </stylesheets>

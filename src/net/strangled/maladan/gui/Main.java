@@ -1,4 +1,4 @@
-package net.strangled.maladan;
+package net.strangled.maladan.gui;
 
 import javafx.application.Application;
 import javafx.application.Platform;

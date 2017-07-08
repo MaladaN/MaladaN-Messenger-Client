@@ -1,4 +1,4 @@
-package net.strangled.maladan;
+package net.strangled.maladan.gui;
 
 import net.MaladaN.Tor.thoughtcrime.GetSQLConnection;
 import net.strangled.maladan.serializables.User;

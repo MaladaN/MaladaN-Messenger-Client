@@ -1,4 +1,4 @@
-package net.strangled.maladan;
+package net.strangled.maladan.gui;
 
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;

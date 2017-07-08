@@ -5,7 +5,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Font?>
 <?import java.net.URL?>
-<BorderPane xmlns:fx="null" fx:controller="net.strangled.maladan.SignInController" styleClass="rootWindow">
+<BorderPane xmlns:fx="null" fx:controller="net.strangled.maladan.gui.SignInController" styleClass="rootWindow">
     <stylesheets>
         <URL value="@loginRegister.css"/>
     </stylesheets>
