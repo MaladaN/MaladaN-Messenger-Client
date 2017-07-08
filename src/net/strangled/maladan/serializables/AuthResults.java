@@ -1,12 +1,12 @@
 package net.strangled.maladan.serializables;
 
 
-public class RegistrationResults {
+public class AuthResults {
 
     private String formattedResults;
     private boolean valid;
 
-    public RegistrationResults(String formattedResults, boolean valid) {
+    public AuthResults(String formattedResults, boolean valid) {
         this.formattedResults = formattedResults;
         this.valid = valid;
     }

@@ -1,4 +1,4 @@
-package net.strangled.maladan.gui;
+package net.strangled.maladan.shared;
 
 
 import java.io.ObjectOutputStream;
@@ -8,16 +8,16 @@ import java.util.Vector;
 
 public class OutgoingMessageThread implements Runnable {
 
-    static boolean running = true;
+    public static boolean running = true;
     private static Vector<Object> outgoingMessages = new Vector<>();
     private Thread t;
     private OutputStream stream;
 
-    OutgoingMessageThread(OutputStream stream) {
+    public OutgoingMessageThread(OutputStream stream) {
         this.stream = stream;
     }
 
-    static void addNewMessage(Object message) {
+    public static void addNewMessage(Object message) {
         outgoingMessages.add(message);
     }
 
@@ -48,7 +48,7 @@ public class OutgoingMessageThread implements Runnable {
         }
     }
 
-    void start() {
+    public void start() {
         if (t == null) {
             t = new Thread(this);
             t.start();

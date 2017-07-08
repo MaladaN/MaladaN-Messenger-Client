@@ -13,10 +13,8 @@ import net.i2p.client.streaming.I2PSocket;
 import net.i2p.client.streaming.I2PSocketManager;
 import net.i2p.client.streaming.I2PSocketManagerFactory;
 import net.i2p.data.Destination;
-
-import java.io.*;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
+import net.strangled.maladan.shared.IncomingMessageThread;
+import net.strangled.maladan.shared.OutgoingMessageThread;
 
 
 public class Main extends Application {
@@ -31,25 +29,7 @@ public class Main extends Application {
         return data;
     }
 
-    static byte[] hashData(String data) throws NoSuchAlgorithmException {
-        MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
-        messageDigest.update(data.getBytes());
-        return messageDigest.digest();
-    }
 
-    static byte[] serializeObject(Object object) throws IOException {
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        ObjectOutput out = new ObjectOutputStream(bos);
-        out.writeObject(object);
-        out.flush();
-        return bos.toByteArray();
-    }
-
-    static Object reconstructSerializedObject(byte[] object) throws Exception {
-        ByteArrayInputStream bis = new ByteArrayInputStream(object);
-        ObjectInput in = new ObjectInputStream(bis);
-        return in.readObject();
-    }
 
     @Override
     public void start(Stage primaryStage) throws Exception {

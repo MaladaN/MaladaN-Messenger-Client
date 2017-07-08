@@ -15,6 +15,9 @@ import net.MaladaN.Tor.thoughtcrime.SignalCrypto;
 import net.strangled.maladan.serializables.ServerInit;
 import net.strangled.maladan.serializables.ServerLogin;
 import net.strangled.maladan.serializables.User;
+import net.strangled.maladan.shared.IncomingMessageThread;
+import net.strangled.maladan.shared.LocalLoginDataStore;
+import net.strangled.maladan.shared.OutgoingMessageThread;
 import org.whispersystems.libsignal.SignalProtocolAddress;
 
 import javax.xml.bind.DatatypeConverter;
@@ -100,15 +103,15 @@ public class SignInController {
 
                     try {
                         SignalProtocolAddress address = new SignalProtocolAddress("SERVER", 0);
-                        ServerLogin login = new ServerLogin(DatatypeConverter.printBase64Binary(Main.hashData(username)), SignalCrypto.encryptByteMessage(Main.hashData(password), address, null));
+                        ServerLogin login = new ServerLogin(DatatypeConverter.printBase64Binary(net.strangled.maladan.cli.Main.hashData(username)), SignalCrypto.encryptByteMessage(net.strangled.maladan.cli.Main.hashData(password), address, null));
                         OutgoingMessageThread.addNewMessage(login);
 
-                        while (IncomingMessageThread.getLoginResults().equals("")) {
+                        while (IncomingMessageThread.getAuthResults() == null) {
                             Thread.sleep(1000);
                         }
 
-                        String data = IncomingMessageThread.getLoginResults();
-                        IncomingMessageThread.setLoginResults();
+                        String data = IncomingMessageThread.getAuthResults().getFormattedResults();
+                        IncomingMessageThread.setAuthResults();
 
                         Platform.runLater(() -> {
                             errorLabel.setText(data);
@@ -149,16 +152,16 @@ public class SignInController {
                 Thread registrationWork = new Thread(() -> {
 
                     try {
-                        ServerInit init = new ServerInit(Main.hashData(username), uniqueId, Main.getData());
+                        ServerInit init = new ServerInit(net.strangled.maladan.cli.Main.hashData(username), uniqueId, Main.getData());
                         OutgoingMessageThread.addNewMessage(init);
                         IncomingMessageThread.setData(password, username);
 
-                        while (IncomingMessageThread.getRegistrationResults() == null) {
+                        while (IncomingMessageThread.getAuthResults() == null) {
                             Thread.sleep(1000);
                         }
 
-                        String data = IncomingMessageThread.getRegistrationResults().getFormattedResults();
-                        boolean valid = IncomingMessageThread.getRegistrationResults().isValid();
+                        String data = IncomingMessageThread.getAuthResults().getFormattedResults();
+                        boolean valid = IncomingMessageThread.getAuthResults().isValid();
 
                         Platform.runLater(() -> {
                             errorLabel.setText(data);

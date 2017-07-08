@@ -1,4 +1,4 @@
-package net.strangled.maladan.gui;
+package net.strangled.maladan.shared;
 
 import java.util.LinkedList;
 

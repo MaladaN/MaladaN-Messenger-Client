@@ -1,4 +1,4 @@
-package net.strangled.maladan.gui;
+package net.strangled.maladan.shared;
 
 import net.MaladaN.Tor.thoughtcrime.GetSQLConnection;
 import net.strangled.maladan.serializables.User;
@@ -17,7 +17,7 @@ public class LocalLoginDataStore {
             PreparedStatement ps = conn.prepareStatement(sql);
             ResultSet rs = ps.executeQuery();
             rs.next();
-            User user = (User) Main.reconstructSerializedObject(rs.getBytes("user"));
+            User user = (User) net.strangled.maladan.cli.Main.reconstructSerializedObject(rs.getBytes("user"));
             conn.close();
             return user;
 
@@ -25,19 +25,19 @@ public class LocalLoginDataStore {
         return null;
     }
 
-    static void saveLocaluser(User user) throws Exception {
+    public static void saveLocaluser(User user) throws Exception {
         Connection conn = GetSQLConnection.getConn();
 
         if (conn != null && !dataSaved()) {
             String sql = "INSERT INTO username (user) VALUES (?)";
             PreparedStatement ps = conn.prepareStatement(sql);
-            ps.setBytes(1, Main.serializeObject(user));
+            ps.setBytes(1, net.strangled.maladan.cli.Main.serializeObject(user));
             ps.execute();
             conn.close();
         }
     }
 
-    static boolean dataSaved() throws Exception {
+    public static boolean dataSaved() throws Exception {
         Connection conn = GetSQLConnection.getConn();
 
         if (conn != null) {

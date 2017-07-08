@@ -6,6 +6,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
+import net.strangled.maladan.shared.MessengerConversation;
 
 public class ConversationCell extends ListCell<MessengerConversation> {
     /**
