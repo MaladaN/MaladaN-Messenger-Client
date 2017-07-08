@@ -37,4 +37,8 @@ public class SendInitData implements java.io.Serializable {
         return new ServerResponsePreKeyBundle(registrationId, preKeys.get(randomPreKeyIdPuller), signedPreKeyId, signedPreKeyPublic, signedPreKeySignature, identityKey);
 
     }
+
+    public IdentityKey getIdKey() throws Exception {
+        return new IdentityKey(identityKey, 0);
+    }
 }

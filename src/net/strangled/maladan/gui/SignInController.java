@@ -103,7 +103,8 @@ public class SignInController {
 
                     try {
                         SignalProtocolAddress address = new SignalProtocolAddress("SERVER", 0);
-                        ServerLogin login = new ServerLogin(DatatypeConverter.printBase64Binary(net.strangled.maladan.cli.Main.hashData(username)), SignalCrypto.encryptByteMessage(net.strangled.maladan.cli.Main.hashData(password), address, null));
+                        //TODO If ever use this again, this needs to be updated to accept the identity key...
+                        ServerLogin login = new ServerLogin(DatatypeConverter.printBase64Binary(net.strangled.maladan.cli.Main.hashData(username)), SignalCrypto.encryptByteMessage(net.strangled.maladan.cli.Main.hashData(password), address, null), null);
                         OutgoingMessageThread.addNewMessage(login);
 
                         while (IncomingMessageThread.getAuthResults() == null) {
@@ -169,7 +170,7 @@ public class SignInController {
                             if (valid) {
                                 disableRegistration();
                                 try {
-                                    LocalLoginDataStore.saveLocaluser(new User(true));
+                                    LocalLoginDataStore.saveLocaluser(new User(true, username));
                                     switchToMainInterface();
                                 } catch (Exception e) {
                                     e.printStackTrace();
