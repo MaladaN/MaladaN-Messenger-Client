@@ -1,6 +1,7 @@
 package net.strangled.maladan.shared;
 
 
+import net.MaladaN.Tor.thoughtcrime.MMessageObject;
 import net.MaladaN.Tor.thoughtcrime.ServerResponsePreKeyBundle;
 import net.MaladaN.Tor.thoughtcrime.SignalCrypto;
 import net.strangled.maladan.serializables.*;
@@ -10,6 +11,7 @@ import org.whispersystems.libsignal.state.PreKeyBundle;
 import javax.xml.bind.DatatypeConverter;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
+import java.util.ArrayList;
 import java.util.Vector;
 
 public class IncomingMessageThread implements Runnable {
@@ -25,7 +27,7 @@ public class IncomingMessageThread implements Runnable {
     private static PreKeyBundle userBundle = null;
 
     //Soon to be implemented. (for actual user messages)
-    private static Vector<Object> incomingMessages = new Vector<>();
+    private static Vector<MMessageObject> incomingMessages = new Vector<>();
     private Thread t;
     private InputStream stream;
 
@@ -55,6 +57,16 @@ public class IncomingMessageThread implements Runnable {
         return userBundle;
     }
 
+    public static ArrayList<MMessageObject> getIncomingMessages() {
+        ArrayList<MMessageObject> objects = new ArrayList<>();
+        objects.addAll(incomingMessages);
+        return objects;
+    }
+
+    public static boolean deleteMessageObjects(ArrayList<MMessageObject> objectsToRemove) {
+        return incomingMessages.removeAll(objectsToRemove);
+    }
+
     @Override
     public void run() {
         try {
@@ -81,6 +93,10 @@ public class IncomingMessageThread implements Runnable {
                 } else if (incoming instanceof ServerResponsePreKeyBundle && !registrationFlag) {
                     ServerResponsePreKeyBundle serverResponsePreKeyBundle = (ServerResponsePreKeyBundle) incoming;
                     handleRequestedUserPreKeyBundle(serverResponsePreKeyBundle);
+
+                } else if (incoming instanceof MMessageObject) {
+                    MMessageObject incomingMessage = (MMessageObject) incoming;
+                    handleIncomingMMessage(incomingMessage);
                 }
             }
 
@@ -136,6 +152,10 @@ public class IncomingMessageThread implements Runnable {
 
     private void handleRequestedUserPreKeyBundle(ServerResponsePreKeyBundle bundle) {
         IncomingMessageThread.userBundle = bundle.getPreKeyBundle();
+    }
+
+    private void handleIncomingMMessage(MMessageObject object) {
+        incomingMessages.add(object);
     }
 
     public void start() {

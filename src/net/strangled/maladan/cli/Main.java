@@ -24,11 +24,37 @@ import javax.xml.bind.DatatypeConverter;
 import java.io.*;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.Scanner;
 
 public class Main {
+    private static boolean running = true;
 
     public static void main(String[] args) {
+
+        Thread t = new Thread(() -> {
+            while (running) {
+                ArrayList<MMessageObject> objects;
+
+                while ((objects = IncomingMessageThread.getIncomingMessages()) == null) {
+
+                    try {
+                        Thread.sleep(600);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                for (MMessageObject object : objects) {
+                    byte[] encryptedMessage = object.getSerializedMessageObject();
+                    String decryptedMessage = SignalCrypto.decryptStringMessage(encryptedMessage, new SignalProtocolAddress(object.getSendingUser(), 0));
+                    System.out.println(decryptedMessage);
+                }
+            }
+        });
+
+        t.start();
+
         System.out.println("Connecting to the server...");
         connect();
         System.out.println("Connected.");
@@ -63,7 +89,7 @@ public class Main {
             }
         }
         try {
-            boolean sent = sendStringMessage("test", "tomatoman");
+            boolean sent = sendStringMessage("test", "tester");
             if (sent) {
                 System.out.println("Message Sent");
             } else {
@@ -72,6 +98,7 @@ public class Main {
         } catch (Exception e) {
             e.printStackTrace();
         }
+
     }
 
     public static byte[] hashData(String data) throws NoSuchAlgorithmException {
@@ -191,11 +218,18 @@ public class Main {
 
         if (requestedUserBundle != null) {
             byte[] eteeMessage = SignalCrypto.encryptStringMessage(message, new SignalProtocolAddress(actualUsername, 0), requestedUserBundle);
-            MMessageObject mMessageObject = new MMessageObject(eteeMessage, actualUsername);
+            String ourUsername = LocalLoginDataStore.getData().getUsername();
+            MMessageObject mMessageObject = new MMessageObject(eteeMessage, actualUsername, ourUsername);
+            OutgoingMessageThread.addNewMessage(mMessageObject);
+            return true;
+
+        } else {
+            byte[] eteeMessage = SignalCrypto.encryptStringMessage(message, new SignalProtocolAddress(actualUsername, 0), null);
+            String ourUsername = LocalLoginDataStore.getData().getUsername();
+            MMessageObject mMessageObject = new MMessageObject(eteeMessage, actualUsername, ourUsername);
             OutgoingMessageThread.addNewMessage(mMessageObject);
             return true;
         }
-        return false;
     }
 
     boolean sendFileMessage(File file, String recipientUsername) {
