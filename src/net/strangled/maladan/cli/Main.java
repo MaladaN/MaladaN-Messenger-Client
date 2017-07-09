@@ -2,6 +2,7 @@ package net.strangled.maladan.cli;
 
 
 import net.MaladaN.Tor.thoughtcrime.InitData;
+import net.MaladaN.Tor.thoughtcrime.MMessageObject;
 import net.MaladaN.Tor.thoughtcrime.MySignalProtocolStore;
 import net.MaladaN.Tor.thoughtcrime.SignalCrypto;
 import net.i2p.client.streaming.I2PSocket;
@@ -17,6 +18,7 @@ import net.strangled.maladan.shared.LocalLoginDataStore;
 import net.strangled.maladan.shared.OutgoingMessageThread;
 import org.whispersystems.libsignal.IdentityKey;
 import org.whispersystems.libsignal.SignalProtocolAddress;
+import org.whispersystems.libsignal.state.PreKeyBundle;
 
 import javax.xml.bind.DatatypeConverter;
 import java.io.*;
@@ -60,8 +62,16 @@ public class Main {
                 e.printStackTrace();
             }
         }
-        IncomingMessageThread.running = false;
-        OutgoingMessageThread.running = false;
+        try {
+            boolean sent = sendStringMessage("test", "tomatoman");
+            if (sent) {
+                System.out.println("Message Sent");
+            } else {
+                System.out.println("Message failed to send");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public static byte[] hashData(String data) throws NoSuchAlgorithmException {
@@ -162,7 +172,29 @@ public class Main {
         return IncomingMessageThread.getAuthResults();
     }
 
-    boolean sendStringMessage(String message, String recipientUsername) {
+    static boolean sendStringMessage(String message, String recipientUsername) throws Exception {
+        byte[] hashedUsername = hashData(recipientUsername);
+        String actualUsername = DatatypeConverter.printBase64Binary(hashedUsername);
+        boolean sessionExists = new MySignalProtocolStore().containsSession(new SignalProtocolAddress(actualUsername, 0));
+        PreKeyBundle requestedUserBundle = null;
+
+        if (!sessionExists) {
+            User sendUser = new User(false, actualUsername);
+            OutgoingMessageThread.addNewMessage(sendUser);
+
+            while (IncomingMessageThread.getUserBundle() == null) {
+                Thread.sleep(600);
+            }
+            requestedUserBundle = IncomingMessageThread.getUserBundle();
+            IncomingMessageThread.setUserBundleNull();
+        }
+
+        if (requestedUserBundle != null) {
+            byte[] eteeMessage = SignalCrypto.encryptStringMessage(message, new SignalProtocolAddress(actualUsername, 0), requestedUserBundle);
+            MMessageObject mMessageObject = new MMessageObject(eteeMessage, actualUsername);
+            OutgoingMessageThread.addNewMessage(mMessageObject);
+            return true;
+        }
         return false;
     }
 
