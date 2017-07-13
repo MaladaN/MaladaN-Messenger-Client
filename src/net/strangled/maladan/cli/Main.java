@@ -36,19 +36,21 @@ public class Main {
             while (running) {
                 ArrayList<MMessageObject> objects;
 
-                while ((objects = IncomingMessageThread.getIncomingMessages()) == null) {
+                while ((objects = IncomingMessageThread.getIncomingMessages()).isEmpty()) {
 
                     try {
                         Thread.sleep(600);
+                        break;
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
-                }
 
-                for (MMessageObject object : objects) {
-                    byte[] encryptedMessage = object.getSerializedMessageObject();
-                    String decryptedMessage = SignalCrypto.decryptStringMessage(encryptedMessage, new SignalProtocolAddress(object.getSendingUser(), 0));
-                    System.out.println(decryptedMessage);
+                    for (MMessageObject object : objects) {
+                        byte[] encryptedMessage = object.getSerializedMessageObject();
+                        String decryptedMessage = SignalCrypto.decryptStringMessage(encryptedMessage, new SignalProtocolAddress(object.getSendingUser(), 0));
+                        System.out.println(decryptedMessage);
+                    }
+
                 }
             }
         });
@@ -73,7 +75,11 @@ public class Main {
 
             try {
                 AuthResults results = register(username, password, "tester123");
-                System.out.println(results.getFormattedResults());
+
+                if (results != null) {
+                    System.out.println(results.getFormattedResults());
+                }
+
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -83,7 +89,11 @@ public class Main {
 
             try {
                 AuthResults results = login(password);
-                System.out.println(results.getFormattedResults());
+
+                if (results != null) {
+                    System.out.println(results.getFormattedResults());
+                }
+
             } catch (Exception e) {
                 e.printStackTrace();
             }

@@ -17,7 +17,7 @@ public class OutgoingMessageThread implements Runnable {
         this.stream = stream;
     }
 
-    public static void addNewMessage(Object message) {
+    public static synchronized void addNewMessage(Object message) {
         outgoingMessages.add(message);
     }
 

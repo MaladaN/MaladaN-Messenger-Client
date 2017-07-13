@@ -35,35 +35,35 @@ public class IncomingMessageThread implements Runnable {
         this.stream = stream;
     }
 
-    public static void setData(String password, String username) {
+    public static synchronized void setData(String password, String username) {
         IncomingMessageThread.password = password;
         IncomingMessageThread.username = username;
         IncomingMessageThread.registrationFlag = true;
     }
 
-    public static AuthResults getAuthResults() {
+    public static synchronized AuthResults getAuthResults() {
         return loginResults;
     }
 
-    public static void setAuthResults() {
+    public static synchronized void setAuthResults() {
         IncomingMessageThread.loginResults = null;
     }
 
-    public static void setUserBundleNull() {
+    public static synchronized void setUserBundleNull() {
         IncomingMessageThread.userBundle = null;
     }
 
-    public static PreKeyBundle getUserBundle() {
+    public static synchronized PreKeyBundle getUserBundle() {
         return userBundle;
     }
 
-    public static ArrayList<MMessageObject> getIncomingMessages() {
+    public static synchronized ArrayList<MMessageObject> getIncomingMessages() {
         ArrayList<MMessageObject> objects = new ArrayList<>();
         objects.addAll(incomingMessages);
         return objects;
     }
 
-    public static boolean deleteMessageObjects(ArrayList<MMessageObject> objectsToRemove) {
+    public static synchronized boolean deleteMessageObjects(ArrayList<MMessageObject> objectsToRemove) {
         return incomingMessages.removeAll(objectsToRemove);
     }
 
