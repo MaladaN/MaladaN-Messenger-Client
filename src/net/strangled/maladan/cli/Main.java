@@ -36,14 +36,14 @@ public class Main {
             while (running) {
                 ArrayList<MMessageObject> objects;
 
-                while ((objects = IncomingMessageThread.getIncomingMessages()).isEmpty()) {
+                try {
+                    Thread.sleep(600);
+                    break;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
 
-                    try {
-                        Thread.sleep(600);
-                        break;
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
+                if (!(objects = IncomingMessageThread.getIncomingMessages()).isEmpty()) {
 
                     for (MMessageObject object : objects) {
                         byte[] encryptedMessage = object.getSerializedMessageObject();
@@ -51,7 +51,9 @@ public class Main {
                         System.out.println(decryptedMessage);
                     }
 
+                    IncomingMessageThread.deleteMessageObjects(objects);
                 }
+
             }
         });
 
