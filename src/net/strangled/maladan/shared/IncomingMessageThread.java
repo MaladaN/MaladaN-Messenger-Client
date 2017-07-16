@@ -6,65 +6,19 @@ import net.MaladaN.Tor.thoughtcrime.ServerResponsePreKeyBundle;
 import net.MaladaN.Tor.thoughtcrime.SignalCrypto;
 import net.strangled.maladan.serializables.*;
 import org.whispersystems.libsignal.SignalProtocolAddress;
-import org.whispersystems.libsignal.state.PreKeyBundle;
 
 import javax.xml.bind.DatatypeConverter;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
-import java.util.ArrayList;
-import java.util.Vector;
 
 public class IncomingMessageThread implements Runnable {
 
-    public static boolean running = true;
-    private static boolean registrationFlag;
-
-    private static String password = "";
-    private static String username = "";
-
-    private static AuthResults loginResults = null;
-
-    private static PreKeyBundle userBundle = null;
-
-    //Soon to be implemented. (for actual user messages)
-    private static Vector<MMessageObject> incomingMessages = new Vector<>();
+    public boolean running = true;
     private Thread t;
     private InputStream stream;
 
     public IncomingMessageThread(InputStream stream) {
         this.stream = stream;
-    }
-
-    public static synchronized void setData(String password, String username) {
-        IncomingMessageThread.password = password;
-        IncomingMessageThread.username = username;
-        IncomingMessageThread.registrationFlag = true;
-    }
-
-    public static synchronized AuthResults getAuthResults() {
-        return loginResults;
-    }
-
-    public static synchronized void setAuthResults() {
-        IncomingMessageThread.loginResults = null;
-    }
-
-    public static synchronized void setUserBundleNull() {
-        IncomingMessageThread.userBundle = null;
-    }
-
-    public static synchronized PreKeyBundle getUserBundle() {
-        return userBundle;
-    }
-
-    public static synchronized ArrayList<MMessageObject> getIncomingMessages() {
-        ArrayList<MMessageObject> objects = new ArrayList<>();
-        objects.addAll(incomingMessages);
-        return objects;
-    }
-
-    public static synchronized boolean deleteMessageObjects(ArrayList<MMessageObject> objectsToRemove) {
-        return incomingMessages.removeAll(objectsToRemove);
     }
 
     @Override
@@ -75,7 +29,7 @@ public class IncomingMessageThread implements Runnable {
             while (running) {
                 Object incoming = in.readObject();
 
-                if (incoming instanceof ServerResponsePreKeyBundle && registrationFlag) {
+                if (incoming instanceof ServerResponsePreKeyBundle && StaticComms.isRegistrationFlag()) {
                     ServerResponsePreKeyBundle serverResponsePreKeyBundle = (ServerResponsePreKeyBundle) incoming;
                     registrationSendPassword(serverResponsePreKeyBundle);
 
@@ -84,13 +38,13 @@ public class IncomingMessageThread implements Runnable {
                     returnLoginResults(encryptedLoginState);
 
                 } else if (incoming instanceof LoginResponseState) {
-                    loginResults = new AuthResults("Failed to Login", false);
+                    StaticComms.setAuthResults(new AuthResults("Failed to Login", false));
 
                 } else if (incoming instanceof EncryptedRegistrationState) {
                     EncryptedRegistrationState encryptedRegistrationState = (EncryptedRegistrationState) incoming;
                     returnRegistrationResults(encryptedRegistrationState);
 
-                } else if (incoming instanceof ServerResponsePreKeyBundle && !registrationFlag) {
+                } else if (incoming instanceof ServerResponsePreKeyBundle && !StaticComms.isRegistrationFlag()) {
                     ServerResponsePreKeyBundle serverResponsePreKeyBundle = (ServerResponsePreKeyBundle) incoming;
                     handleRequestedUserPreKeyBundle(serverResponsePreKeyBundle);
 
@@ -106,9 +60,12 @@ public class IncomingMessageThread implements Runnable {
     }
 
     private void registrationSendPassword(ServerResponsePreKeyBundle bundle) throws Exception {
-        while (password.equals("")) {
+        while (StaticComms.getPassword().equals("")) {
             Thread.sleep(1000);
         }
+
+        String password = StaticComms.getPassword();
+        String username = StaticComms.getUsername();
 
         SignalProtocolAddress serverAddress = new SignalProtocolAddress("SERVER", 0);
 
@@ -122,9 +79,8 @@ public class IncomingMessageThread implements Runnable {
 
         OutgoingMessageThread.addNewMessage(passwordSend);
 
-        password = "";
-        username = "";
-        registrationFlag = false;
+        StaticComms.clearLoginData();
+        StaticComms.falsifyRegistrationFlag();
     }
 
     private void returnLoginResults(EncryptedLoginState encryptedLoginState) throws Exception {
@@ -132,9 +88,9 @@ public class IncomingMessageThread implements Runnable {
         LoginResponseState state = (LoginResponseState) net.strangled.maladan.cli.Main.reconstructSerializedObject(serializedLoginResponseState);
 
         if (state.isValidLogin()) {
-            loginResults = new AuthResults("Logged In Successfully", true);
+            StaticComms.setAuthResults(new AuthResults("Logged In Successfully", true));
         } else {
-            loginResults = new AuthResults("Failed to Login.", false);
+            StaticComms.setAuthResults(new AuthResults("Failed to Login.", false));
         }
     }
 
@@ -144,18 +100,18 @@ public class IncomingMessageThread implements Runnable {
         boolean loginState = state.isValidRegistration();
 
         if (loginState) {
-            loginResults = new AuthResults("Successfully Registered.", true);
+            StaticComms.setAuthResults(new AuthResults("Successfully Registered.", true));
         } else {
-            loginResults = new AuthResults("Registration Failed.", false);
+            StaticComms.setAuthResults(new AuthResults("Registration Failed.", false));
         }
     }
 
     private void handleRequestedUserPreKeyBundle(ServerResponsePreKeyBundle bundle) {
-        IncomingMessageThread.userBundle = bundle.getPreKeyBundle();
+        StaticComms.setUserBundle(bundle.getPreKeyBundle());
     }
 
     private void handleIncomingMMessage(MMessageObject object) {
-        incomingMessages.add(object);
+        StaticComms.addIncomingMessage(object);
     }
 
     public void start() {

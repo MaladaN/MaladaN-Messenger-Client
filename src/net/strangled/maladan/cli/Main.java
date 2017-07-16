@@ -16,6 +16,7 @@ import net.strangled.maladan.serializables.User;
 import net.strangled.maladan.shared.IncomingMessageThread;
 import net.strangled.maladan.shared.LocalLoginDataStore;
 import net.strangled.maladan.shared.OutgoingMessageThread;
+import net.strangled.maladan.shared.StaticComms;
 import org.whispersystems.libsignal.IdentityKey;
 import org.whispersystems.libsignal.SignalProtocolAddress;
 import org.whispersystems.libsignal.state.PreKeyBundle;
@@ -24,7 +25,6 @@ import javax.xml.bind.DatatypeConverter;
 import java.io.*;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
 import java.util.Scanner;
 
 public class Main {
@@ -32,36 +32,12 @@ public class Main {
 
     public static void main(String[] args) {
 
-        Thread t = new Thread(() -> {
-            while (running) {
-                ArrayList<MMessageObject> objects;
-
-                try {
-                    Thread.sleep(600);
-                    break;
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-
-                if (!(objects = IncomingMessageThread.getIncomingMessages()).isEmpty()) {
-
-                    for (MMessageObject object : objects) {
-                        byte[] encryptedMessage = object.getSerializedMessageObject();
-                        String decryptedMessage = SignalCrypto.decryptStringMessage(encryptedMessage, new SignalProtocolAddress(object.getSendingUser(), 0));
-                        System.out.println(decryptedMessage);
-                    }
-
-                    IncomingMessageThread.deleteMessageObjects(objects);
-                }
-
-            }
-        });
-
-        t.start();
-
         System.out.println("Connecting to the server...");
         connect();
         System.out.println("Connected.");
+
+        HandleMessage handleMessage = new HandleMessage();
+        handleMessage.start();
 
         Scanner input = new Scanner(System.in);
         System.out.println("Enter an option: register or login");
@@ -101,11 +77,15 @@ public class Main {
             }
         }
         try {
-            boolean sent = sendStringMessage("test", "tester");
-            if (sent) {
-                System.out.println("Message Sent");
-            } else {
-                System.out.println("Message failed to send");
+            while (running) {
+                System.out.println("Enter a message to send: ");
+                String messageToSend = input.nextLine();
+                boolean sent = sendStringMessage(messageToSend, "tester");
+                if (sent) {
+                    System.out.println("Message Sent");
+                } else {
+                    System.out.println("Message failed to send");
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -176,7 +156,7 @@ public class Main {
 
             ServerLogin login = new ServerLogin(base64Username, encryptedPassword, serializedKey);
 
-            OutgoingMessageThread.addNewMessage(login);
+            StaticComms.addOutgoingMessage(login);
 
             return waitForData();
 
@@ -195,8 +175,8 @@ public class Main {
         byte[] hashedUsername = hashData(username);
         ServerInit init = new ServerInit(hashedUsername, uniqueId, data);
 
-        IncomingMessageThread.setData(password, username);
-        OutgoingMessageThread.addNewMessage(init);
+        StaticComms.setData(password, username);
+        StaticComms.addOutgoingMessage(init);
 
         LocalLoginDataStore.saveLocaluser(new User(true, username));
 
@@ -204,11 +184,11 @@ public class Main {
     }
 
     private static AuthResults waitForData() throws Exception {
-        while (IncomingMessageThread.getAuthResults() == null) {
+        while (StaticComms.getAuthResults() == null) {
             Thread.sleep(1000);
         }
 
-        return IncomingMessageThread.getAuthResults();
+        return StaticComms.getAuthResults();
     }
 
     static boolean sendStringMessage(String message, String recipientUsername) throws Exception {
@@ -219,27 +199,27 @@ public class Main {
 
         if (!sessionExists) {
             User sendUser = new User(false, actualUsername);
-            OutgoingMessageThread.addNewMessage(sendUser);
+            StaticComms.addOutgoingMessage(sendUser);
 
-            while (IncomingMessageThread.getUserBundle() == null) {
+            while (StaticComms.getUserBundle() == null) {
                 Thread.sleep(600);
             }
-            requestedUserBundle = IncomingMessageThread.getUserBundle();
-            IncomingMessageThread.setUserBundleNull();
+            requestedUserBundle = StaticComms.getUserBundle();
+            StaticComms.setUserBundle(null);
         }
 
         if (requestedUserBundle != null) {
             byte[] eteeMessage = SignalCrypto.encryptStringMessage(message, new SignalProtocolAddress(actualUsername, 0), requestedUserBundle);
             String ourUsername = LocalLoginDataStore.getData().getUsername();
             MMessageObject mMessageObject = new MMessageObject(eteeMessage, actualUsername, ourUsername);
-            OutgoingMessageThread.addNewMessage(mMessageObject);
+            StaticComms.addOutgoingMessage(mMessageObject);
             return true;
 
         } else {
             byte[] eteeMessage = SignalCrypto.encryptStringMessage(message, new SignalProtocolAddress(actualUsername, 0), null);
             String ourUsername = LocalLoginDataStore.getData().getUsername();
             MMessageObject mMessageObject = new MMessageObject(eteeMessage, actualUsername, ourUsername);
-            OutgoingMessageThread.addNewMessage(mMessageObject);
+            StaticComms.addOutgoingMessage(mMessageObject);
             return true;
         }
     }
