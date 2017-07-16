@@ -77,7 +77,7 @@ public class IncomingMessageThread implements Runnable {
 
         SignalEncryptedPasswordSend passwordSend = new SignalEncryptedPasswordSend(encryptedHashedPassword, base64Username);
 
-        OutgoingMessageThread.addNewMessage(passwordSend);
+        StaticComms.addOutgoingMessage(passwordSend);
 
         StaticComms.clearLoginData();
         StaticComms.falsifyRegistrationFlag();
