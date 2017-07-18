@@ -154,6 +154,7 @@ public class Main {
             byte[] hashedPassword = hashData(password);
             byte[] encryptedPassword = SignalCrypto.encryptByteMessage(hashedPassword, address, null);
 
+            // TODO encrypt with server signal session
             ServerLogin login = new ServerLogin(base64Username, encryptedPassword, serializedKey);
 
             StaticComms.addOutgoingMessage(login);
@@ -175,7 +176,7 @@ public class Main {
         byte[] hashedUsername = hashData(username);
         ServerInit init = new ServerInit(hashedUsername, uniqueId, data);
 
-        StaticComms.setData(password, username);
+        StaticComms.setCredentials(password, username);
         StaticComms.addOutgoingMessage(init);
 
         LocalLoginDataStore.saveLocaluser(new User(true, username));
@@ -188,7 +189,10 @@ public class Main {
             Thread.sleep(1000);
         }
 
-        return StaticComms.getAuthResults();
+        AuthResults results = StaticComms.getAuthResults();
+        StaticComms.clearAuthResults();
+
+        return results;
     }
 
     static boolean sendStringMessage(String message, String recipientUsername) throws Exception {
@@ -198,6 +202,7 @@ public class Main {
         PreKeyBundle requestedUserBundle = null;
 
         if (!sessionExists) {
+            // TODO encrypt with server signal session
             User sendUser = new User(false, actualUsername);
             StaticComms.addOutgoingMessage(sendUser);
 
@@ -207,10 +212,11 @@ public class Main {
             requestedUserBundle = StaticComms.getUserBundle();
             StaticComms.setUserBundle(null);
         }
-
+        // TODO fix efficiency of code. Copy and paste not good :/
         if (requestedUserBundle != null) {
             byte[] eteeMessage = SignalCrypto.encryptStringMessage(message, new SignalProtocolAddress(actualUsername, 0), requestedUserBundle);
             String ourUsername = LocalLoginDataStore.getData().getUsername();
+            // TODO encrypt with server signal session
             MMessageObject mMessageObject = new MMessageObject(eteeMessage, actualUsername, ourUsername);
             StaticComms.addOutgoingMessage(mMessageObject);
             return true;
@@ -218,6 +224,7 @@ public class Main {
         } else {
             byte[] eteeMessage = SignalCrypto.encryptStringMessage(message, new SignalProtocolAddress(actualUsername, 0), null);
             String ourUsername = LocalLoginDataStore.getData().getUsername();
+            // TODO encrypt with server signal session
             MMessageObject mMessageObject = new MMessageObject(eteeMessage, actualUsername, ourUsername);
             StaticComms.addOutgoingMessage(mMessageObject);
             return true;

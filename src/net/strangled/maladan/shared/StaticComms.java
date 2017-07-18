@@ -18,10 +18,23 @@ public class StaticComms {
     private static Vector<Object> outgoingMessages = new Vector<>();
     private static boolean registrationFlag;
 
-    public static synchronized void setData(String password, String username) {
+    public static synchronized void setCredentials(String password, String username) {
         StaticComms.password = password;
         StaticComms.username = username;
         registrationFlag = true;
+    }
+
+    public static synchronized String getPassword() {
+        return password;
+    }
+
+    public static synchronized String getUsername() {
+        return username;
+    }
+
+    public static synchronized void clearLoginData() {
+        StaticComms.password = "";
+        StaticComms.username = "";
     }
 
     public static synchronized AuthResults getAuthResults() {
@@ -44,6 +57,14 @@ public class StaticComms {
         StaticComms.userBundle = userBundle;
     }
 
+    public static synchronized boolean isRegistrationFlag() {
+        return registrationFlag;
+    }
+
+    public static synchronized void falsifyRegistrationFlag() {
+        StaticComms.registrationFlag = false;
+    }
+
     public static synchronized List<MMessageObject> getIncomingMessages() {
         Vector<MMessageObject> objects = new Vector<>();
         objects.addAll(incomingMessages);
@@ -52,31 +73,6 @@ public class StaticComms {
 
     public static synchronized void addIncomingMessage(MMessageObject object) {
         StaticComms.incomingMessages.add(object);
-    }
-
-    public static synchronized void deleteMessageObjects(List<MMessageObject> objectsToRemove) {
-        incomingMessages.removeAll(objectsToRemove);
-    }
-
-    public static synchronized String getPassword() {
-        return password;
-    }
-
-    public static synchronized String getUsername() {
-        return username;
-    }
-
-    public static synchronized void clearLoginData() {
-        StaticComms.password = "";
-        StaticComms.username = "";
-    }
-
-    public static synchronized boolean isRegistrationFlag() {
-        return registrationFlag;
-    }
-
-    public static synchronized void falsifyRegistrationFlag() {
-        StaticComms.registrationFlag = false;
     }
 
     public static synchronized void addOutgoingMessage(Object message) {
@@ -95,5 +91,9 @@ public class StaticComms {
 
     public static synchronized void removeOutgoingMessages(List<Object> outgoingMessages) {
         StaticComms.outgoingMessages.removeAll(outgoingMessages);
+    }
+
+    public static synchronized void deleteMessageObjects(List<MMessageObject> objectsToRemove) {
+        StaticComms.incomingMessages.removeAll(objectsToRemove);
     }
 }
