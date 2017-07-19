@@ -9,7 +9,7 @@ import net.i2p.client.streaming.I2PSocket;
 import net.i2p.client.streaming.I2PSocketManager;
 import net.i2p.client.streaming.I2PSocketManagerFactory;
 import net.i2p.data.Destination;
-import net.strangled.maladan.serializables.AuthResults;
+import net.strangled.maladan.serializables.EncryptedUser;
 import net.strangled.maladan.serializables.ServerInit;
 import net.strangled.maladan.serializables.ServerLogin;
 import net.strangled.maladan.serializables.User;
@@ -154,7 +154,6 @@ public class Main {
             byte[] hashedPassword = hashData(password);
             byte[] encryptedPassword = SignalCrypto.encryptByteMessage(hashedPassword, address, null);
 
-            // TODO encrypt with server signal session
             ServerLogin login = new ServerLogin(base64Username, encryptedPassword, serializedKey);
 
             StaticComms.addOutgoingMessage(login);
@@ -204,7 +203,11 @@ public class Main {
         if (!sessionExists) {
             // TODO encrypt with server signal session
             User sendUser = new User(false, actualUsername);
-            StaticComms.addOutgoingMessage(sendUser);
+            byte[] serializedUser = serializeObject(sendUser);
+            byte[] encryptedSerializedUser = SignalCrypto.encryptByteMessage(serializedUser, new SignalProtocolAddress("SERVER", 0), null);
+
+            EncryptedUser encryptedUser = new EncryptedUser(encryptedSerializedUser);
+            StaticComms.addOutgoingMessage(encryptedUser);
 
             while (StaticComms.getUserBundle() == null) {
                 Thread.sleep(600);

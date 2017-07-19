@@ -4,6 +4,7 @@ package net.strangled.maladan.shared;
 import net.MaladaN.Tor.thoughtcrime.MMessageObject;
 import net.MaladaN.Tor.thoughtcrime.ServerResponsePreKeyBundle;
 import net.MaladaN.Tor.thoughtcrime.SignalCrypto;
+import net.strangled.maladan.cli.AuthResults;
 import net.strangled.maladan.serializables.*;
 import org.whispersystems.libsignal.SignalProtocolAddress;
 
@@ -33,16 +34,16 @@ public class IncomingMessageThread implements Runnable {
                     ServerResponsePreKeyBundle serverResponsePreKeyBundle = (ServerResponsePreKeyBundle) incoming;
                     registrationSendPassword(serverResponsePreKeyBundle);
 
-                } else if (incoming instanceof EncryptedLoginState) {
-                    EncryptedLoginState encryptedLoginState = (EncryptedLoginState) incoming;
-                    returnLoginResults(encryptedLoginState);
+                } else if (incoming instanceof EncryptedLoginResponseState) {
+                    EncryptedLoginResponseState encryptedLoginResponseState = (EncryptedLoginResponseState) incoming;
+                    returnLoginResults(encryptedLoginResponseState);
 
                 } else if (incoming instanceof LoginResponseState) {
                     StaticComms.setAuthResults(new AuthResults("Failed to Login", false));
 
-                } else if (incoming instanceof EncryptedRegistrationState) {
-                    EncryptedRegistrationState encryptedRegistrationState = (EncryptedRegistrationState) incoming;
-                    returnRegistrationResults(encryptedRegistrationState);
+                } else if (incoming instanceof EncryptedRegistrationResponseState) {
+                    EncryptedRegistrationResponseState encryptedRegistrationResponseState = (EncryptedRegistrationResponseState) incoming;
+                    returnRegistrationResults(encryptedRegistrationResponseState);
 
                 } else if (incoming instanceof ServerResponsePreKeyBundle && !StaticComms.isRegistrationFlag()) {
                     ServerResponsePreKeyBundle serverResponsePreKeyBundle = (ServerResponsePreKeyBundle) incoming;
@@ -83,8 +84,8 @@ public class IncomingMessageThread implements Runnable {
         StaticComms.falsifyRegistrationFlag();
     }
 
-    private void returnLoginResults(EncryptedLoginState encryptedLoginState) throws Exception {
-        byte[] serializedLoginResponseState = SignalCrypto.decryptMessage(encryptedLoginState.getEncryptedState(), new SignalProtocolAddress("SERVER", 0));
+    private void returnLoginResults(EncryptedLoginResponseState encryptedLoginResponseState) throws Exception {
+        byte[] serializedLoginResponseState = SignalCrypto.decryptMessage(encryptedLoginResponseState.getEncryptedState(), new SignalProtocolAddress("SERVER", 0));
         LoginResponseState state = (LoginResponseState) net.strangled.maladan.cli.Main.reconstructSerializedObject(serializedLoginResponseState);
 
         if (state.isValidLogin()) {
@@ -94,8 +95,8 @@ public class IncomingMessageThread implements Runnable {
         }
     }
 
-    private void returnRegistrationResults(EncryptedRegistrationState encryptedRegistrationState) throws Exception {
-        byte[] serializedRegistrationResponseState = SignalCrypto.decryptMessage(encryptedRegistrationState.getEncryptedState(), new SignalProtocolAddress("SERVER", 0));
+    private void returnRegistrationResults(EncryptedRegistrationResponseState encryptedRegistrationResponseState) throws Exception {
+        byte[] serializedRegistrationResponseState = SignalCrypto.decryptMessage(encryptedRegistrationResponseState.getEncryptedState(), new SignalProtocolAddress("SERVER", 0));
         RegistrationResponseState state = (RegistrationResponseState) net.strangled.maladan.cli.Main.reconstructSerializedObject(serializedRegistrationResponseState);
         boolean loginState = state.isValidRegistration();
 

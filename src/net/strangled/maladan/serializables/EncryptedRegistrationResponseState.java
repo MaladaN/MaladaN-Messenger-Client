@@ -1,12 +1,9 @@
 package net.strangled.maladan.serializables;
 
-
-public class EncryptedLoginState implements java.io.Serializable {
-    //Holds the login State for transport
-
+public class EncryptedRegistrationResponseState implements java.io.Serializable {
     private byte[] encryptedState;
 
-    public EncryptedLoginState(byte[] encryptedState) {
+    public EncryptedRegistrationResponseState(byte[] encryptedState) {
         this.encryptedState = encryptedState;
     }
 
