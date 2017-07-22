@@ -5,6 +5,7 @@ import net.MaladaN.Tor.thoughtcrime.MMessageObject;
 import net.MaladaN.Tor.thoughtcrime.ServerResponsePreKeyBundle;
 import net.MaladaN.Tor.thoughtcrime.SignalCrypto;
 import net.strangled.maladan.cli.AuthResults;
+import net.strangled.maladan.cli.Main;
 import net.strangled.maladan.serializables.*;
 import org.whispersystems.libsignal.SignalProtocolAddress;
 
@@ -45,12 +46,12 @@ public class IncomingMessageThread implements Runnable {
                     EncryptedRegistrationResponseState encryptedRegistrationResponseState = (EncryptedRegistrationResponseState) incoming;
                     returnRegistrationResults(encryptedRegistrationResponseState);
 
-                } else if (incoming instanceof ServerResponsePreKeyBundle && !StaticComms.isRegistrationFlag()) {
-                    ServerResponsePreKeyBundle serverResponsePreKeyBundle = (ServerResponsePreKeyBundle) incoming;
-                    handleRequestedUserPreKeyBundle(serverResponsePreKeyBundle);
+                } else if (incoming instanceof EncryptedClientPreKeyBundle) {
+                    EncryptedClientPreKeyBundle encryptedClientPreKeyBundle = (EncryptedClientPreKeyBundle) incoming;
+                    handleRequestedUserPreKeyBundle(encryptedClientPreKeyBundle);
 
-                } else if (incoming instanceof MMessageObject) {
-                    MMessageObject incomingMessage = (MMessageObject) incoming;
+                } else if (incoming instanceof EncryptedMMessageObject) {
+                    EncryptedMMessageObject incomingMessage = (EncryptedMMessageObject) incoming;
                     handleIncomingMMessage(incomingMessage);
                 }
             }
@@ -107,12 +108,18 @@ public class IncomingMessageThread implements Runnable {
         }
     }
 
-    private void handleRequestedUserPreKeyBundle(ServerResponsePreKeyBundle bundle) {
-        StaticComms.setUserBundle(bundle.getPreKeyBundle());
+    private void handleRequestedUserPreKeyBundle(EncryptedClientPreKeyBundle bundle) throws Exception {
+        byte[] serializedResponseBundle = SignalCrypto.decryptMessage(bundle.getEncryptedSerializedClientPreKeyBundle(), new SignalProtocolAddress("SERVER", 0));
+        ServerResponsePreKeyBundle serverResponsePreKeyBundle = (ServerResponsePreKeyBundle) Main.reconstructSerializedObject(serializedResponseBundle);
+
+        StaticComms.setUserBundle(serverResponsePreKeyBundle.getPreKeyBundle());
     }
 
-    private void handleIncomingMMessage(MMessageObject object) {
-        StaticComms.addIncomingMessage(object);
+    private void handleIncomingMMessage(EncryptedMMessageObject object) throws Exception {
+        byte[] serializedMMessageObject = SignalCrypto.decryptMessage(object.getEncryptedSerializedMMessageObject(), new SignalProtocolAddress("SERVER", 0));
+        MMessageObject messageObject = (MMessageObject) Main.reconstructSerializedObject(serializedMMessageObject);
+
+        StaticComms.addIncomingMessage(messageObject);
     }
 
     public void start() {

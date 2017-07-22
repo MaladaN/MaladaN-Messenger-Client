@@ -9,10 +9,7 @@ import net.i2p.client.streaming.I2PSocket;
 import net.i2p.client.streaming.I2PSocketManager;
 import net.i2p.client.streaming.I2PSocketManagerFactory;
 import net.i2p.data.Destination;
-import net.strangled.maladan.serializables.EncryptedUser;
-import net.strangled.maladan.serializables.ServerInit;
-import net.strangled.maladan.serializables.ServerLogin;
-import net.strangled.maladan.serializables.User;
+import net.strangled.maladan.serializables.*;
 import net.strangled.maladan.shared.IncomingMessageThread;
 import net.strangled.maladan.shared.LocalLoginDataStore;
 import net.strangled.maladan.shared.OutgoingMessageThread;
@@ -201,7 +198,6 @@ public class Main {
         PreKeyBundle requestedUserBundle = null;
 
         if (!sessionExists) {
-            // TODO encrypt with server signal session
             User sendUser = new User(false, actualUsername);
             byte[] serializedUser = serializeObject(sendUser);
             byte[] encryptedSerializedUser = SignalCrypto.encryptByteMessage(serializedUser, new SignalProtocolAddress("SERVER", 0), null);
@@ -215,23 +211,33 @@ public class Main {
             requestedUserBundle = StaticComms.getUserBundle();
             StaticComms.setUserBundle(null);
         }
-        // TODO fix efficiency of code. Copy and paste not good :/
+
+        byte[] eteeMessage;
         if (requestedUserBundle != null) {
-            byte[] eteeMessage = SignalCrypto.encryptStringMessage(message, new SignalProtocolAddress(actualUsername, 0), requestedUserBundle);
-            String ourUsername = LocalLoginDataStore.getData().getUsername();
-            // TODO encrypt with server signal session
-            MMessageObject mMessageObject = new MMessageObject(eteeMessage, actualUsername, ourUsername);
-            StaticComms.addOutgoingMessage(mMessageObject);
-            return true;
+            eteeMessage = SignalCrypto.encryptStringMessage(message, new SignalProtocolAddress(actualUsername, 0), requestedUserBundle);
 
         } else {
-            byte[] eteeMessage = SignalCrypto.encryptStringMessage(message, new SignalProtocolAddress(actualUsername, 0), null);
-            String ourUsername = LocalLoginDataStore.getData().getUsername();
-            // TODO encrypt with server signal session
-            MMessageObject mMessageObject = new MMessageObject(eteeMessage, actualUsername, ourUsername);
-            StaticComms.addOutgoingMessage(mMessageObject);
-            return true;
+            eteeMessage = SignalCrypto.encryptStringMessage(message, new SignalProtocolAddress(actualUsername, 0), null);
         }
+
+        if (eteeMessage != null) {
+            User user = LocalLoginDataStore.getData();
+
+            if (user != null) {
+                String ourUsername = user.getUsername();
+                MMessageObject mMessageObject = new MMessageObject(eteeMessage, actualUsername, ourUsername);
+
+                byte[] serializedMMessageObject = Main.serializeObject(mMessageObject);
+                byte[] encryptedSerializedMessageObject = SignalCrypto.encryptByteMessage(serializedMMessageObject, new SignalProtocolAddress("SERVER", 0), null);
+                EncryptedMMessageObject encryptedMMessageObject = new EncryptedMMessageObject(encryptedSerializedMessageObject);
+
+                StaticComms.addOutgoingMessage(encryptedMMessageObject);
+                return true;
+            }
+            return false;
+
+        }
+        return false;
     }
 
     boolean sendFileMessage(File file, String recipientUsername) {
