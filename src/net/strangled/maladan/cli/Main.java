@@ -74,10 +74,12 @@ public class Main {
             }
         }
         try {
+            System.out.println("Enter the username of the user you would like to converse with: ");
+            String username = input.nextLine();
             while (running) {
                 System.out.println("Enter a message to send: ");
                 String messageToSend = input.nextLine();
-                boolean sent = sendStringMessage(messageToSend, "tester");
+                boolean sent = sendStringMessage(messageToSend, username);
                 if (sent) {
                     System.out.println("Message Sent");
                 } else {
@@ -115,7 +117,7 @@ public class Main {
 
         try {
             I2PSocketManager manager = I2PSocketManagerFactory.createManager();
-            Destination destination = new Destination("JaiCQHfweWn8Acp1XyTse1GL1392f-ZKzal9kyOhBAo-oYtnXAJIe8JU73taAjROnWApCe-hRUOlb6RkwW3kL2orqR8zhO6RDQMmOMy7FYqCq3UlNOOEQbLO1wo3kd65PA8D1zkhdFYqfYsQk4uEgci4~bamadKNOJXE1C~A53kEY-kYQ-vRSdV9LSFCRGay5BNDVJ1lFI~CYJRmreMx1hvd9YAsUg0fuy-U0AzylXwigSRejBhCNfsF-6-dLCQa8KYg8gzxe0DHUNRw18Yf1VwnvV7X2gM0CRQVcMhu7YgD3iwfT~DKFjZqRbNse~xEF0RtMCfhg7LgyCBRlJGVTj2PeXgxVtWHm3L-BtZ4bB5Ugb6K3ZdUFq9zP~VyKUmUJXSpApqhGdiGUWjj91-OZDJYnh6xgT17i-g0T2tEYLoSx9em~YZQQ~-mO3iSpiccSvmPjOpg9X1XVp9QvIyvWQIwrkv6y6ZgHeTrsxsG8HBZhPbMy6flinJRsCcPnIOlAAAA");
+            Destination destination = new Destination("3UpJSG4KBkiCCZ~85mT3xo888jRWMsU6WTkV03YkIwotcUYVfC5QuKgwwzUPPCQCYfe66k5nHX2FMzLmPLLE7NFjSotPhlU5HbFW0d0rt6yePDZ13j1gNKhwPP8OtdDgwEn6w-3kxeeg6XVGmI7qCnMLTJMlICVp4jwdGPcelMfYPswELdLQO54q2IW~4RsiGXuWn4evKeAp7R6c-Ys6H5LWPWyIfbB9XajGohntRbpAW2xpfSVfTTwYS1UIvxfQL~Ped4j909CTnZjFpaLAe4mOekIZltokShGWD2IPfKUuLpcUsf6cw-ThuoI5cJrVKXG2RKpwuqAyJlnMuEFN7WhTskeVlZQXWcJ615uB09uvxhMtSf3s3QQw8Iu-2rsD~FS44xy35cCVCwQ-WNQMsbuq9MNP-A3vH4~428dfab6TtYyrVamac7F228jvkdFQ7rAM9Q-Ju0Se6y19eceqQ10Cd-e6VZnb4XZeERSE8vYfFOcK5M5zVp7KV1ij7wPAAAAA");
             sock = manager.connect(destination);
 
             System.out.println("Creating Threads...");
