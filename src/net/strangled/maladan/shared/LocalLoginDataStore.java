@@ -10,22 +10,6 @@ import java.sql.ResultSet;
 
 public class LocalLoginDataStore {
 
-    static User getLocalUser() throws Exception {
-        Connection conn = GetSQLConnection.getConn();
-
-        if (conn != null && dataSaved()) {
-            String sql = "SELECT user FROM username";
-            PreparedStatement ps = conn.prepareStatement(sql);
-            ResultSet rs = ps.executeQuery();
-            rs.next();
-            User user = (User) net.strangled.maladan.cli.Main.reconstructSerializedObject(rs.getBytes("user"));
-            conn.close();
-            return user;
-
-        }
-        return null;
-    }
-
     public static void saveLocaluser(User user) throws Exception {
         Connection conn = GetSQLConnection.getConn();
 
