@@ -28,15 +28,22 @@ public class Main {
     private static boolean running = true;
 
     public static void main(String[] args) {
+        Scanner input = new Scanner(System.in);
+        String host;
+        int port;
 
-        System.out.println("Connecting to the server...");
-        connect();
+        System.out.println("Enter the host and port of the configured i2p router. If you are running the i2p router on this machine, these can be left blank.");
+        System.out.print("Host: ");
+        host = input.nextLine();
+        System.out.print("Port: ");
+        port = input.nextInt();
+        input.nextLine();
+        connect(host, port);
         System.out.println("Connected.");
 
         HandleMessage handleMessage = new HandleMessage();
         handleMessage.start();
 
-        Scanner input = new Scanner(System.in);
         System.out.println("Enter an option: register or login");
         String received = input.nextLine();
         received = received.toLowerCase();
@@ -112,12 +119,18 @@ public class Main {
         return in.readObject();
     }
 
-    static I2PSocket connect() {
+    static I2PSocket connect(String host, int port) {
         I2PSocket sock;
-
+        I2PSocketManager manager;
         try {
-            I2PSocketManager manager = I2PSocketManagerFactory.createManager();
-            Destination destination = new Destination("3UpJSG4KBkiCCZ~85mT3xo888jRWMsU6WTkV03YkIwotcUYVfC5QuKgwwzUPPCQCYfe66k5nHX2FMzLmPLLE7NFjSotPhlU5HbFW0d0rt6yePDZ13j1gNKhwPP8OtdDgwEn6w-3kxeeg6XVGmI7qCnMLTJMlICVp4jwdGPcelMfYPswELdLQO54q2IW~4RsiGXuWn4evKeAp7R6c-Ys6H5LWPWyIfbB9XajGohntRbpAW2xpfSVfTTwYS1UIvxfQL~Ped4j909CTnZjFpaLAe4mOekIZltokShGWD2IPfKUuLpcUsf6cw-ThuoI5cJrVKXG2RKpwuqAyJlnMuEFN7WhTskeVlZQXWcJ615uB09uvxhMtSf3s3QQw8Iu-2rsD~FS44xy35cCVCwQ-WNQMsbuq9MNP-A3vH4~428dfab6TtYyrVamac7F228jvkdFQ7rAM9Q-Ju0Se6y19eceqQ10Cd-e6VZnb4XZeERSE8vYfFOcK5M5zVp7KV1ij7wPAAAAA");
+
+            if (!(host.equals("")) && port != 0) {
+                manager = I2PSocketManagerFactory.createManager(host, port);
+            } else {
+                manager = I2PSocketManagerFactory.createManager();
+            }
+
+            Destination destination = new Destination("JaiCQHfweWn8Acp1XyTse1GL1392f-ZKzal9kyOhBAo-oYtnXAJIe8JU73taAjROnWApCe-hRUOlb6RkwW3kL2orqR8zhO6RDQMmOMy7FYqCq3UlNOOEQbLO1wo3kd65PA8D1zkhdFYqfYsQk4uEgci4~bamadKNOJXE1C~A53kEY-kYQ-vRSdV9LSFCRGay5BNDVJ1lFI~CYJRmreMx1hvd9YAsUg0fuy-U0AzylXwigSRejBhCNfsF-6-dLCQa8KYg8gzxe0DHUNRw18Yf1VwnvV7X2gM0CRQVcMhu7YgD3iwfT~DKFjZqRbNse~xEF0RtMCfhg7LgyCBRlJGVTj2PeXgxVtWHm3L-BtZ4bB5Ugb6K3ZdUFq9zP~VyKUmUJXSpApqhGdiGUWjj91-OZDJYnh6xgT17i-g0T2tEYLoSx9em~YZQQ~-mO3iSpiccSvmPjOpg9X1XVp9QvIyvWQIwrkv6y6ZgHeTrsxsG8HBZhPbMy6flinJRsCcPnIOlAAAA");
             sock = manager.connect(destination);
 
             System.out.println("Creating Threads...");
@@ -242,7 +255,13 @@ public class Main {
         return false;
     }
 
-    boolean sendFileMessage(File file, String recipientUsername) {
+    static boolean sendFileMessage(File file, String recipientUsername) {
+
+
         return false;
+    }
+
+    static boolean sendFileMessage(String fileName, String recipientUsername) {
+        return sendFileMessage(new File(fileName), recipientUsername);
     }
 }
