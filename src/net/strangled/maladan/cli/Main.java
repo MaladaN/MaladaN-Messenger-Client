@@ -23,6 +23,7 @@ import java.io.*;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Scanner;
+import java.util.UUID;
 
 public class Main {
     private static boolean running = true;
@@ -83,6 +84,17 @@ public class Main {
         try {
             System.out.println("Enter the username of the user you would like to converse with: ");
             String username = input.nextLine();
+
+            System.out.println("Enter a filename to test file encryption.");
+            String filename = input.nextLine();
+            boolean successful = sendFileMessage(filename, username);
+
+            if (successful) {
+                System.out.println("Successfully encrypted and saved.");
+            } else {
+                System.out.println("Something went wrong.");
+            }
+
             while (running) {
                 System.out.println("Enter a message to send: ");
                 String messageToSend = input.nextLine();
@@ -111,6 +123,44 @@ public class Main {
         out.writeObject(object);
         out.flush();
         return bos.toByteArray();
+    }
+
+    private static String getActualUsername(String originalUsername) throws Exception {
+        byte[] hashedUsername = hashData(originalUsername);
+        return DatatypeConverter.printBase64Binary(hashedUsername);
+    }
+
+    private static PreKeyBundle getPreKeyBundleIfNoSession(String username) throws Exception {
+        String actualUsername = getActualUsername(username);
+        boolean sessionExists = new MySignalProtocolStore().containsSession(new SignalProtocolAddress(actualUsername, 0));
+        PreKeyBundle requestedUserBundle = null;
+
+        if (!sessionExists) {
+            User sendUser = new User(false, actualUsername);
+            byte[] serializedUser = serializeObject(sendUser);
+            byte[] encryptedSerializedUser = SignalCrypto.encryptByteMessage(serializedUser, new SignalProtocolAddress("SERVER", 0), null);
+
+            EncryptedUser encryptedUser = new EncryptedUser(encryptedSerializedUser);
+            StaticComms.addOutgoingMessage(encryptedUser);
+
+            while (StaticComms.getUserBundle() == null) {
+                Thread.sleep(600);
+            }
+            requestedUserBundle = StaticComms.getUserBundle();
+            StaticComms.setUserBundle(null);
+        }
+        return requestedUserBundle;
+    }
+
+    private static AuthResults waitForAuthData() throws Exception {
+        while (StaticComms.getAuthResults() == null) {
+            Thread.sleep(1000);
+        }
+
+        AuthResults results = StaticComms.getAuthResults();
+        StaticComms.clearAuthResults();
+
+        return results;
     }
 
     public static Object reconstructSerializedObject(byte[] object) throws Exception {
@@ -170,7 +220,7 @@ public class Main {
 
             StaticComms.addOutgoingMessage(login);
 
-            return waitForData();
+            return waitForAuthData();
 
         } else {
             return null;
@@ -192,48 +242,14 @@ public class Main {
 
         LocalLoginDataStore.saveLocaluser(new User(true, username));
 
-        return waitForData();
-    }
-
-    private static AuthResults waitForData() throws Exception {
-        while (StaticComms.getAuthResults() == null) {
-            Thread.sleep(1000);
-        }
-
-        AuthResults results = StaticComms.getAuthResults();
-        StaticComms.clearAuthResults();
-
-        return results;
+        return waitForAuthData();
     }
 
     static boolean sendStringMessage(String message, String recipientUsername) throws Exception {
-        byte[] hashedUsername = hashData(recipientUsername);
-        String actualUsername = DatatypeConverter.printBase64Binary(hashedUsername);
-        boolean sessionExists = new MySignalProtocolStore().containsSession(new SignalProtocolAddress(actualUsername, 0));
-        PreKeyBundle requestedUserBundle = null;
+        String actualUsername = getActualUsername(recipientUsername);
+        PreKeyBundle requestedUserBundle = getPreKeyBundleIfNoSession(recipientUsername);
 
-        if (!sessionExists) {
-            User sendUser = new User(false, actualUsername);
-            byte[] serializedUser = serializeObject(sendUser);
-            byte[] encryptedSerializedUser = SignalCrypto.encryptByteMessage(serializedUser, new SignalProtocolAddress("SERVER", 0), null);
-
-            EncryptedUser encryptedUser = new EncryptedUser(encryptedSerializedUser);
-            StaticComms.addOutgoingMessage(encryptedUser);
-
-            while (StaticComms.getUserBundle() == null) {
-                Thread.sleep(600);
-            }
-            requestedUserBundle = StaticComms.getUserBundle();
-            StaticComms.setUserBundle(null);
-        }
-
-        byte[] eteeMessage;
-        if (requestedUserBundle != null) {
-            eteeMessage = SignalCrypto.encryptStringMessage(message, new SignalProtocolAddress(actualUsername, 0), requestedUserBundle);
-
-        } else {
-            eteeMessage = SignalCrypto.encryptStringMessage(message, new SignalProtocolAddress(actualUsername, 0), null);
-        }
+        byte[] eteeMessage = SignalCrypto.encryptStringMessage(message, new SignalProtocolAddress(actualUsername, 0), requestedUserBundle);
 
         if (eteeMessage != null) {
             User user = LocalLoginDataStore.getData();
@@ -255,13 +271,44 @@ public class Main {
         return false;
     }
 
-    static boolean sendFileMessage(File file, String recipientUsername) {
+    static boolean sendFileMessage(String fileName, String recipientUsername) throws Exception {
+        File tempFile = new File("Files");
+        if (!tempFile.exists()) {
+            tempFile.mkdir();
+        }
 
+        final String temporaryFileDirectory = "Files" + File.separator;
+        final String uuid = UUID.randomUUID().toString();
+
+        String actualUsername = getActualUsername(recipientUsername);
+        PreKeyBundle bundle = getPreKeyBundleIfNoSession(recipientUsername);
+
+        File fileToSend = new File(fileName);
+        String temporaryFilename = temporaryFileDirectory + uuid + fileToSend.getName() + ".mal";
+
+        try (InputStream in = new FileInputStream(fileToSend);
+             OutputStream out = new FileOutputStream(temporaryFilename, true)) {
+            byte[] buffer = new byte[25000000];
+
+            while ((in.read(buffer)) > 0) {
+                byte[] encryptedBuffer = SignalCrypto.encryptByteMessage(buffer, new SignalProtocolAddress(actualUsername, 0), bundle);
+
+                if (encryptedBuffer != null) {
+                    out.write(encryptedBuffer);
+
+                } else {
+                    throw new Exception();
+                }
+            }
+            out.flush();
+            //continue File sending procedure
+
+            return true;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         return false;
-    }
-
-    static boolean sendFileMessage(String fileName, String recipientUsername) {
-        return sendFileMessage(new File(fileName), recipientUsername);
     }
 }
