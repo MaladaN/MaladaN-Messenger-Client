@@ -1,12 +1,13 @@
 package net.strangled.maladan.shared;
 
 
-import net.MaladaN.Tor.thoughtcrime.MMessageObject;
 import net.MaladaN.Tor.thoughtcrime.ServerResponsePreKeyBundle;
 import net.MaladaN.Tor.thoughtcrime.SignalCrypto;
 import net.strangled.maladan.cli.AuthResults;
 import net.strangled.maladan.cli.Main;
-import net.strangled.maladan.serializables.*;
+import net.strangled.maladan.serializables.Authentication.*;
+import net.strangled.maladan.serializables.Messaging.EncryptedMMessageObject;
+import net.strangled.maladan.serializables.Messaging.MMessageObject;
 import org.whispersystems.libsignal.SignalProtocolAddress;
 
 import javax.xml.bind.DatatypeConverter;

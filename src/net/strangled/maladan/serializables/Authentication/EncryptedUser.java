@@ -1,4 +1,4 @@
-package net.strangled.maladan.serializables;
+package net.strangled.maladan.serializables.Authentication;
 
 public class EncryptedUser implements java.io.Serializable {
     //Stored encrypted User class

@@ -1,4 +1,4 @@
-package net.strangled.maladan.serializables;
+package net.strangled.maladan.serializables.Authentication;
 
 public class EncryptedClientPreKeyBundle implements java.io.Serializable {
     //stores an encrypted client pre key bundle for transport

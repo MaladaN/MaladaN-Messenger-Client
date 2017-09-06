@@ -1,4 +1,4 @@
-package net.strangled.maladan.serializables;
+package net.strangled.maladan.serializables.Messaging;
 
 public class EncryptedMMessageObject implements java.io.Serializable {
     //Stores encrypted MMessageObject class

@@ -2,7 +2,7 @@ package net.strangled.maladan.shared;
 
 import net.MaladaN.Tor.thoughtcrime.GetSQLConnection;
 import net.strangled.maladan.cli.Main;
-import net.strangled.maladan.serializables.User;
+import net.strangled.maladan.serializables.Authentication.User;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

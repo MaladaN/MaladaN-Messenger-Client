@@ -1,4 +1,4 @@
-package net.MaladaN.Tor.thoughtcrime;
+package net.strangled.maladan.serializables.Messaging;
 
 public class MMessageObject implements java.io.Serializable {
     private byte[] serializedMessageObject;

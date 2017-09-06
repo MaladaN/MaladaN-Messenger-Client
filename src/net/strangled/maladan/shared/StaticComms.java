@@ -1,8 +1,8 @@
 package net.strangled.maladan.shared;
 
 
-import net.MaladaN.Tor.thoughtcrime.MMessageObject;
 import net.strangled.maladan.cli.AuthResults;
+import net.strangled.maladan.serializables.Messaging.MMessageObject;
 import org.whispersystems.libsignal.state.PreKeyBundle;
 
 import java.util.List;

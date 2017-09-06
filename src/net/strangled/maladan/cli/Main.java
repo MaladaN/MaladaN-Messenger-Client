@@ -2,14 +2,18 @@ package net.strangled.maladan.cli;
 
 
 import net.MaladaN.Tor.thoughtcrime.InitData;
-import net.MaladaN.Tor.thoughtcrime.MMessageObject;
 import net.MaladaN.Tor.thoughtcrime.MySignalProtocolStore;
 import net.MaladaN.Tor.thoughtcrime.SignalCrypto;
 import net.i2p.client.streaming.I2PSocket;
 import net.i2p.client.streaming.I2PSocketManager;
 import net.i2p.client.streaming.I2PSocketManagerFactory;
 import net.i2p.data.Destination;
-import net.strangled.maladan.serializables.*;
+import net.strangled.maladan.serializables.Authentication.EncryptedUser;
+import net.strangled.maladan.serializables.Authentication.ServerInit;
+import net.strangled.maladan.serializables.Authentication.ServerLogin;
+import net.strangled.maladan.serializables.Authentication.User;
+import net.strangled.maladan.serializables.Messaging.EncryptedMMessageObject;
+import net.strangled.maladan.serializables.Messaging.MMessageObject;
 import net.strangled.maladan.shared.IncomingMessageThread;
 import net.strangled.maladan.shared.LocalLoginDataStore;
 import net.strangled.maladan.shared.OutgoingMessageThread;

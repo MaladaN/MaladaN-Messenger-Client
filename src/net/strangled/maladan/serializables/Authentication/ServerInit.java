@@ -1,4 +1,4 @@
-package net.strangled.maladan.serializables;
+package net.strangled.maladan.serializables.Authentication;
 
 
 import net.MaladaN.Tor.thoughtcrime.InitData;

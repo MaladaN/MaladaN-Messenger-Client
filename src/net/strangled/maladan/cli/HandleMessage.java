@@ -1,8 +1,8 @@
 package net.strangled.maladan.cli;
 
 
-import net.MaladaN.Tor.thoughtcrime.MMessageObject;
 import net.MaladaN.Tor.thoughtcrime.SignalCrypto;
+import net.strangled.maladan.serializables.Messaging.MMessageObject;
 import net.strangled.maladan.shared.StaticComms;
 import org.whispersystems.libsignal.SignalProtocolAddress;
 
