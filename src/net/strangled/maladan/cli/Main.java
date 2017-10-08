@@ -305,7 +305,11 @@ public class Main {
                 }
             }
             out.flush();
-            //continue File sending procedure
+            //TODO continue File sending procedure
+            //TODO need encrypted containment classes for 'FileInitiation', 'FileSpan', and 'FileEnd'
+            //TODO next step after containers: add handlers for each new class coming into the server.
+            //TODO " figure out a system of storing the reconstructed file on the server in escrow until the recipient user is ready to receive it.
+            //TODO " Send file to client using the same classes for sending to the server, and create reception handlers for the client to save the file in a preferred location on local disk.
 
             return true;
 
