@@ -4,15 +4,21 @@ package net.strangled.maladan.shared;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.util.LinkedList;
+import java.util.Vector;
 
 public class OutgoingMessageThread implements Runnable {
 
     public static boolean running = true;
+    private static Vector<Object> outgoingMessages = new Vector<>();
     private Thread t;
     private OutputStream stream;
 
     public OutgoingMessageThread(OutputStream stream) {
         this.stream = stream;
+    }
+
+    public static synchronized void addOutgoingMessage(Object message) {
+        outgoingMessages.add(message);
     }
 
     @Override
@@ -24,16 +30,16 @@ public class OutgoingMessageThread implements Runnable {
             while (running) {
                 Thread.sleep(5);
 
-                if (!StaticComms.outgoingMessagesStatus()) {
+                if (!outgoingMessages.isEmpty()) {
                     LinkedList<Object> currentOut = new LinkedList<>();
-                    currentOut.addAll(StaticComms.getOutgoingMessages());
+                    currentOut.addAll(outgoingMessages);
 
                     for (Object j : currentOut) {
                         out.writeObject(j);
                         Thread.sleep(2);
                         out.flush();
                     }
-                    StaticComms.removeOutgoingMessages(currentOut);
+                    outgoingMessages.removeAll(currentOut);
                 }
             }
 

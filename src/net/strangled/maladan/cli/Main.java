@@ -17,7 +17,6 @@ import net.strangled.maladan.serializables.Messaging.MMessageObject;
 import net.strangled.maladan.shared.IncomingMessageThread;
 import net.strangled.maladan.shared.LocalLoginDataStore;
 import net.strangled.maladan.shared.OutgoingMessageThread;
-import net.strangled.maladan.shared.StaticComms;
 import org.whispersystems.libsignal.IdentityKey;
 import org.whispersystems.libsignal.SignalProtocolAddress;
 import org.whispersystems.libsignal.state.PreKeyBundle;
@@ -46,8 +45,8 @@ public class Main {
         connect(host, port);
         System.out.println("Connected.");
 
-        HandleMessage handleMessage = new HandleMessage();
-        handleMessage.start();
+        MessageHandlerThread messageHandlerThread = new MessageHandlerThread();
+        messageHandlerThread.start();
 
         System.out.println("Enter an option: register or login");
         String received = input.nextLine();
@@ -89,15 +88,15 @@ public class Main {
             System.out.println("Enter the username of the user you would like to converse with: ");
             String username = input.nextLine();
 
-            System.out.println("Enter a filename to test file encryption.");
-            String filename = input.nextLine();
-            boolean successful = sendFileMessage(filename, username);
+//            System.out.println("Enter a filename to test file encryption.");
+//            String filename = input.nextLine();
+//            boolean successful = sendFileMessage(filename, username);
 
-            if (successful) {
-                System.out.println("Successfully encrypted and saved.");
-            } else {
-                System.out.println("Something went wrong.");
-            }
+//            if (successful) {
+//                System.out.println("Successfully encrypted and saved.");
+//            } else {
+//                System.out.println("Something went wrong.");
+//            }
 
             while (running) {
                 System.out.println("Enter a message to send: ");
@@ -145,24 +144,24 @@ public class Main {
             byte[] encryptedSerializedUser = SignalCrypto.encryptByteMessage(serializedUser, new SignalProtocolAddress("SERVER", 0), null);
 
             EncryptedUser encryptedUser = new EncryptedUser(encryptedSerializedUser);
-            StaticComms.addOutgoingMessage(encryptedUser);
+            OutgoingMessageThread.addOutgoingMessage(encryptedUser);
 
-            while (StaticComms.getUserBundle() == null) {
+            while (IncomingMessageThread.getUserBundle() == null) {
                 Thread.sleep(600);
             }
-            requestedUserBundle = StaticComms.getUserBundle();
-            StaticComms.setUserBundle(null);
+            requestedUserBundle = IncomingMessageThread.getUserBundle();
+            IncomingMessageThread.setUserBundle(null);
         }
         return requestedUserBundle;
     }
 
     private static AuthResults waitForAuthData() throws Exception {
-        while (StaticComms.getAuthResults() == null) {
+        while (IncomingMessageThread.getAuthResults() == null) {
             Thread.sleep(1000);
         }
 
-        AuthResults results = StaticComms.getAuthResults();
-        StaticComms.clearAuthResults();
+        AuthResults results = IncomingMessageThread.getAuthResults();
+        IncomingMessageThread.clearAuthResults();
 
         return results;
     }
@@ -222,7 +221,7 @@ public class Main {
 
             ServerLogin login = new ServerLogin(base64Username, encryptedPassword, serializedKey);
 
-            StaticComms.addOutgoingMessage(login);
+            OutgoingMessageThread.addOutgoingMessage(login);
 
             return waitForAuthData();
 
@@ -242,7 +241,7 @@ public class Main {
         ServerInit init = new ServerInit(hashedUsername, uniqueId, data);
 
         IncomingMessageThread.setCredentials(password, username);
-        StaticComms.addOutgoingMessage(init);
+        OutgoingMessageThread.addOutgoingMessage(init);
 
         LocalLoginDataStore.saveLocaluser(new User(true, username));
 
@@ -266,7 +265,7 @@ public class Main {
                 byte[] encryptedSerializedMessageObject = SignalCrypto.encryptByteMessage(serializedMMessageObject, new SignalProtocolAddress("SERVER", 0), null);
                 EncryptedMMessageObject encryptedMMessageObject = new EncryptedMMessageObject(encryptedSerializedMessageObject);
 
-                StaticComms.addOutgoingMessage(encryptedMMessageObject);
+                OutgoingMessageThread.addOutgoingMessage(encryptedMMessageObject);
                 return true;
             }
             return false;

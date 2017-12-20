@@ -3,12 +3,12 @@ package net.strangled.maladan.cli;
 
 import net.MaladaN.Tor.thoughtcrime.SignalCrypto;
 import net.strangled.maladan.serializables.Messaging.MMessageObject;
-import net.strangled.maladan.shared.StaticComms;
+import net.strangled.maladan.shared.IncomingMessageThread;
 import org.whispersystems.libsignal.SignalProtocolAddress;
 
 import java.util.List;
 
-public class HandleMessage implements Runnable {
+public class MessageHandlerThread implements Runnable {
 
     private boolean running = true;
     private Thread t;
@@ -24,7 +24,7 @@ public class HandleMessage implements Runnable {
                 e.printStackTrace();
             }
 
-            objects = StaticComms.getIncomingMessages();
+            objects = IncomingMessageThread.getIncomingMessages();
 
             if (!objects.isEmpty()) {
 
@@ -34,7 +34,7 @@ public class HandleMessage implements Runnable {
                     System.out.println(decryptedMessage);
                 }
 
-                StaticComms.deleteMessageObjects(objects);
+                IncomingMessageThread.deleteMessageObjects(objects);
             }
 
         }

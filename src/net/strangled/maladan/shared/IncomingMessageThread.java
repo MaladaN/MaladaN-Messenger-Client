@@ -9,21 +9,26 @@ import net.strangled.maladan.serializables.Authentication.*;
 import net.strangled.maladan.serializables.Messaging.EncryptedMMessageObject;
 import net.strangled.maladan.serializables.Messaging.MMessageObject;
 import org.whispersystems.libsignal.SignalProtocolAddress;
+import org.whispersystems.libsignal.state.PreKeyBundle;
 
 import javax.xml.bind.DatatypeConverter;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
+import java.util.List;
+import java.util.Vector;
 
 public class IncomingMessageThread implements Runnable {
 
+    private static String password;
+    private static String username;
+    private static boolean registrationFlag;
+    private static AuthResults loginResults = null;
+    private static PreKeyBundle userBundle = null;
+    private static Vector<MMessageObject> incomingMessages = new Vector<>();
     public boolean running = true;
     private Thread t;
     private InputStream stream;
 
-    private static String password;
-    private static String username;
-
-    private static boolean registrationFlag;
 
     public IncomingMessageThread(InputStream stream) {
         this.stream = stream;
@@ -48,6 +53,36 @@ public class IncomingMessageThread implements Runnable {
         IncomingMessageThread.username = "";
     }
 
+    public static synchronized AuthResults getAuthResults() {
+        return IncomingMessageThread.loginResults;
+    }
+
+    public static synchronized void setAuthResults(AuthResults results) {
+        IncomingMessageThread.loginResults = results;
+    }
+
+    public static synchronized void clearAuthResults() {
+        IncomingMessageThread.loginResults = null;
+    }
+
+    public static synchronized PreKeyBundle getUserBundle() {
+        return IncomingMessageThread.userBundle;
+    }
+
+    public static synchronized void setUserBundle(PreKeyBundle userBundle) {
+        IncomingMessageThread.userBundle = userBundle;
+    }
+
+    public static synchronized List<MMessageObject> getIncomingMessages() {
+        Vector<MMessageObject> objects = new Vector<>();
+        objects.addAll(IncomingMessageThread.incomingMessages);
+        return objects;
+    }
+
+    public static synchronized void deleteMessageObjects(List<MMessageObject> objectsToRemove) {
+        IncomingMessageThread.incomingMessages.removeAll(objectsToRemove);
+    }
+
     @Override
     public void run() {
         try {
@@ -65,7 +100,7 @@ public class IncomingMessageThread implements Runnable {
                     returnLoginResults(encryptedLoginResponseState);
 
                 } else if (incoming instanceof LoginResponseState) {
-                    StaticComms.setAuthResults(new AuthResults("Failed to Login", false));
+                    IncomingMessageThread.setAuthResults(new AuthResults("Failed to Login", false));
 
                 } else if (incoming instanceof EncryptedRegistrationResponseState) {
                     EncryptedRegistrationResponseState encryptedRegistrationResponseState = (EncryptedRegistrationResponseState) incoming;
@@ -104,7 +139,7 @@ public class IncomingMessageThread implements Runnable {
 
         SignalEncryptedPasswordSend passwordSend = new SignalEncryptedPasswordSend(encryptedHashedPassword, base64Username);
 
-        StaticComms.addOutgoingMessage(passwordSend);
+        OutgoingMessageThread.addOutgoingMessage(passwordSend);
 
         IncomingMessageThread.clearLoginData();
         registrationFlag = false;
@@ -115,9 +150,9 @@ public class IncomingMessageThread implements Runnable {
         LoginResponseState state = (LoginResponseState) net.strangled.maladan.cli.Main.reconstructSerializedObject(serializedLoginResponseState);
 
         if (state.isValidLogin()) {
-            StaticComms.setAuthResults(new AuthResults("Logged In Successfully", true));
+            IncomingMessageThread.setAuthResults(new AuthResults("Logged In Successfully", true));
         } else {
-            StaticComms.setAuthResults(new AuthResults("Failed to Login.", false));
+            IncomingMessageThread.setAuthResults(new AuthResults("Failed to Login.", false));
         }
     }
 
@@ -127,9 +162,9 @@ public class IncomingMessageThread implements Runnable {
         boolean loginState = state.isValidRegistration();
 
         if (loginState) {
-            StaticComms.setAuthResults(new AuthResults("Successfully Registered.", true));
+            IncomingMessageThread.setAuthResults(new AuthResults("Successfully Registered.", true));
         } else {
-            StaticComms.setAuthResults(new AuthResults("Registration Failed.", false));
+            IncomingMessageThread.setAuthResults(new AuthResults("Registration Failed.", false));
         }
     }
 
@@ -137,14 +172,14 @@ public class IncomingMessageThread implements Runnable {
         byte[] serializedResponseBundle = SignalCrypto.decryptMessage(bundle.getEncryptedSerializedClientPreKeyBundle(), new SignalProtocolAddress("SERVER", 0));
         ServerResponsePreKeyBundle serverResponsePreKeyBundle = (ServerResponsePreKeyBundle) Main.reconstructSerializedObject(serializedResponseBundle);
 
-        StaticComms.setUserBundle(serverResponsePreKeyBundle.getPreKeyBundle());
+        IncomingMessageThread.setUserBundle(serverResponsePreKeyBundle.getPreKeyBundle());
     }
 
     private void handleIncomingMMessage(EncryptedMMessageObject object) throws Exception {
         byte[] serializedMMessageObject = SignalCrypto.decryptMessage(object.getEncryptedSerializedMMessageObject(), new SignalProtocolAddress("SERVER", 0));
         MMessageObject messageObject = (MMessageObject) Main.reconstructSerializedObject(serializedMMessageObject);
 
-        StaticComms.addIncomingMessage(messageObject);
+        incomingMessages.add(messageObject);
     }
 
     public void start() {
