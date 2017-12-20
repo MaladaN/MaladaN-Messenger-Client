@@ -88,15 +88,15 @@ public class Main {
             System.out.println("Enter the username of the user you would like to converse with: ");
             String username = input.nextLine();
 
-//            System.out.println("Enter a filename to test file encryption.");
-//            String filename = input.nextLine();
-//            boolean successful = sendFileMessage(filename, username);
+            System.out.println("Enter a filename to test file encryption.");
+            String filename = input.nextLine();
+            boolean successful = sendFileMessage(filename, username);
 
-//            if (successful) {
-//                System.out.println("Successfully encrypted and saved.");
-//            } else {
-//                System.out.println("Something went wrong.");
-//            }
+            if (successful) {
+                System.out.println("Successfully encrypted and saved.");
+            } else {
+                System.out.println("Something went wrong.");
+            }
 
             while (running) {
                 System.out.println("Enter a message to send: ");
