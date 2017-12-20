@@ -241,7 +241,7 @@ public class Main {
         byte[] hashedUsername = hashData(username);
         ServerInit init = new ServerInit(hashedUsername, uniqueId, data);
 
-        StaticComms.setCredentials(password, username);
+        IncomingMessageThread.setCredentials(password, username);
         StaticComms.addOutgoingMessage(init);
 
         LocalLoginDataStore.saveLocaluser(new User(true, username));

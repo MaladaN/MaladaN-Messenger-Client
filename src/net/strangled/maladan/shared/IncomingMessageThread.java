@@ -20,8 +20,32 @@ public class IncomingMessageThread implements Runnable {
     private Thread t;
     private InputStream stream;
 
+    private static String password;
+    private static String username;
+
+    private static boolean registrationFlag;
+
     public IncomingMessageThread(InputStream stream) {
         this.stream = stream;
+    }
+
+    public static synchronized void setCredentials(String password, String username) {
+        IncomingMessageThread.password = password;
+        IncomingMessageThread.username = username;
+        registrationFlag = true;
+    }
+
+    public static synchronized String getPassword() {
+        return IncomingMessageThread.password;
+    }
+
+    public static synchronized String getUsername() {
+        return IncomingMessageThread.username;
+    }
+
+    public static synchronized void clearLoginData() {
+        IncomingMessageThread.password = "";
+        IncomingMessageThread.username = "";
     }
 
     @Override
@@ -32,7 +56,7 @@ public class IncomingMessageThread implements Runnable {
             while (running) {
                 Object incoming = in.readObject();
 
-                if (incoming instanceof ServerResponsePreKeyBundle && StaticComms.isRegistrationFlag()) {
+                if (incoming instanceof ServerResponsePreKeyBundle && registrationFlag) {
                     ServerResponsePreKeyBundle serverResponsePreKeyBundle = (ServerResponsePreKeyBundle) incoming;
                     registrationSendPassword(serverResponsePreKeyBundle);
 
@@ -63,27 +87,27 @@ public class IncomingMessageThread implements Runnable {
     }
 
     private void registrationSendPassword(ServerResponsePreKeyBundle bundle) throws Exception {
-        while (StaticComms.getPassword().equals("")) {
+        while (IncomingMessageThread.getPassword().equals("")) {
             Thread.sleep(1000);
         }
 
-        String password = StaticComms.getPassword();
-        String username = StaticComms.getUsername();
+        String password = IncomingMessageThread.getPassword();
+        String username = IncomingMessageThread.getUsername();
 
         SignalProtocolAddress serverAddress = new SignalProtocolAddress("SERVER", 0);
 
-        byte[] hashedPassword = net.strangled.maladan.cli.Main.hashData(password);
+        byte[] hashedPassword = Main.hashData(password);
         byte[] encryptedHashedPassword = SignalCrypto.encryptByteMessage(hashedPassword, serverAddress, bundle.getPreKeyBundle());
 
-        byte[] hashedUsername = net.strangled.maladan.cli.Main.hashData(username);
+        byte[] hashedUsername = Main.hashData(username);
         String base64Username = DatatypeConverter.printBase64Binary(hashedUsername);
 
         SignalEncryptedPasswordSend passwordSend = new SignalEncryptedPasswordSend(encryptedHashedPassword, base64Username);
 
         StaticComms.addOutgoingMessage(passwordSend);
 
-        StaticComms.clearLoginData();
-        StaticComms.falsifyRegistrationFlag();
+        IncomingMessageThread.clearLoginData();
+        registrationFlag = false;
     }
 
     private void returnLoginResults(EncryptedLoginResponseState encryptedLoginResponseState) throws Exception {

@@ -10,32 +10,14 @@ import java.util.Vector;
 
 public class StaticComms {
 
-    private static String password = "";
-    private static String username = "";
     private static AuthResults loginResults = null;
+
     private static PreKeyBundle userBundle = null;
+
     private static Vector<MMessageObject> incomingMessages = new Vector<>();
+
     private static Vector<Object> outgoingMessages = new Vector<>();
-    private static boolean registrationFlag;
 
-    public static synchronized void setCredentials(String password, String username) {
-        StaticComms.password = password;
-        StaticComms.username = username;
-        registrationFlag = true;
-    }
-
-    public static synchronized String getPassword() {
-        return password;
-    }
-
-    public static synchronized String getUsername() {
-        return username;
-    }
-
-    public static synchronized void clearLoginData() {
-        StaticComms.password = "";
-        StaticComms.username = "";
-    }
 
     public static synchronized AuthResults getAuthResults() {
         return loginResults;
@@ -49,6 +31,7 @@ public class StaticComms {
         StaticComms.loginResults = null;
     }
 
+
     public static synchronized PreKeyBundle getUserBundle() {
         return userBundle;
     }
@@ -57,13 +40,6 @@ public class StaticComms {
         StaticComms.userBundle = userBundle;
     }
 
-    public static synchronized boolean isRegistrationFlag() {
-        return registrationFlag;
-    }
-
-    public static synchronized void falsifyRegistrationFlag() {
-        StaticComms.registrationFlag = false;
-    }
 
     public static synchronized List<MMessageObject> getIncomingMessages() {
         Vector<MMessageObject> objects = new Vector<>();
@@ -74,6 +50,11 @@ public class StaticComms {
     public static synchronized void addIncomingMessage(MMessageObject object) {
         StaticComms.incomingMessages.add(object);
     }
+
+    public static synchronized void deleteMessageObjects(List<MMessageObject> objectsToRemove) {
+        StaticComms.incomingMessages.removeAll(objectsToRemove);
+    }
+
 
     public static synchronized void addOutgoingMessage(Object message) {
         outgoingMessages.add(message);
@@ -91,9 +72,5 @@ public class StaticComms {
 
     public static synchronized void removeOutgoingMessages(List<Object> outgoingMessages) {
         StaticComms.outgoingMessages.removeAll(outgoingMessages);
-    }
-
-    public static synchronized void deleteMessageObjects(List<MMessageObject> objectsToRemove) {
-        StaticComms.incomingMessages.removeAll(objectsToRemove);
     }
 }
