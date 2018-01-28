@@ -12,8 +12,7 @@ import net.strangled.maladan.serializables.Authentication.EncryptedUser;
 import net.strangled.maladan.serializables.Authentication.ServerInit;
 import net.strangled.maladan.serializables.Authentication.ServerLogin;
 import net.strangled.maladan.serializables.Authentication.User;
-import net.strangled.maladan.serializables.Messaging.EncryptedMMessageObject;
-import net.strangled.maladan.serializables.Messaging.MMessageObject;
+import net.strangled.maladan.serializables.Messaging.*;
 import net.strangled.maladan.shared.IncomingMessageThread;
 import net.strangled.maladan.shared.LocalLoginDataStore;
 import net.strangled.maladan.shared.OutgoingMessageThread;
@@ -213,8 +212,7 @@ public class Main {
         if (user != null) {
             String username = user.getUsername();
 
-            byte[] hashedUsername = hashData(username);
-            String base64Username = DatatypeConverter.printBase64Binary(hashedUsername);
+            String base64Username = getActualUsername(username);
 
             byte[] hashedPassword = hashData(password);
             byte[] encryptedPassword = SignalCrypto.encryptByteMessage(hashedPassword, address, null);
@@ -305,7 +303,6 @@ public class Main {
             }
             out.flush();
             //TODO continue File sending procedure
-            //TODO need encrypted containment classes for 'FileInitiation', 'FileSpan', and 'FileEnd'
             //TODO next step after containers: add handlers for each new class coming into the server.
             //TODO " figure out a system of storing the reconstructed file on the server in escrow until the recipient user is ready to receive it.
             //TODO " Send file to client using the same classes for sending to the server, and create reception handlers for the client to save the file in a preferred location on local disk.
@@ -314,6 +311,40 @@ public class Main {
 
         } catch (Exception e) {
             e.printStackTrace();
+        }
+
+        try (InputStream in = new FileInputStream(temporaryFilename)) {
+            User user = LocalLoginDataStore.getData();
+            String base64Username = getActualUsername(user.getUsername());
+
+            File temporaryFile = new File(temporaryFilename);
+            byte[] buffer = new byte[FileConstants.bufferLength];
+
+            int i = 0;
+            float numberOfFileObjectsTemp = (float) temporaryFile.length() / (float) FileConstants.bufferLength;
+            float subtractionValue = numberOfFileObjectsTemp % 1;
+            boolean needToClean = !(subtractionValue == 0);
+
+            if (needToClean) {
+                numberOfFileObjectsTemp -= subtractionValue;
+                numberOfFileObjectsTemp++;
+            }
+
+            int numberOfFileObjects = (int) numberOfFileObjectsTemp;
+            numberOfFileObjects--;
+
+            while (in.read(buffer) > 0) {
+                if (i == 0) {
+                    FileInitiation fileStart = new FileInitiation(temporaryFile.length(), base64Username, actualUsername, buffer);
+
+                } else if (i == numberOfFileObjects) {
+                    FileEnd fileEnd = new FileEnd(base64Username, buffer);
+
+                } else {
+                    FileSpan fileSpan = new FileSpan(base64Username, buffer);
+                }
+                i++;
+            }
         }
 
         return false;
