@@ -10,14 +10,16 @@ import org.whispersystems.libsignal.state.SignalProtocolStore;
 public class ServerInit implements java.io.Serializable {
     //Used to initiate an account with the server, by the client.
 
-    private byte[] username;
+    //username is a SHA-256 hash of the username passed by the user
+    //which is then turned into a base64 representation.
+    private String username;
     private SendInitData initData;
     private boolean isNewUser;
 
     //only used for initial registration
     private String uniqueId;
 
-    public ServerInit(byte[] username, String uniqueId, InitData data) throws InvalidKeyIdException {
+    public ServerInit(String username, String uniqueId, InitData data) throws InvalidKeyIdException {
         SignalProtocolStore store = new MySignalProtocolStore();
         this.username = username;
         this.uniqueId = uniqueId;
@@ -27,7 +29,7 @@ public class ServerInit implements java.io.Serializable {
         isNewUser = (uniqueId != null);
     }
 
-    public byte[] getUsername() {
+    public String getUsername() {
         return username;
     }
 

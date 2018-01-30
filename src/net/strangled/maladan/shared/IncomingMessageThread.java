@@ -11,7 +11,6 @@ import net.strangled.maladan.serializables.Messaging.MMessageObject;
 import org.whispersystems.libsignal.SignalProtocolAddress;
 import org.whispersystems.libsignal.state.PreKeyBundle;
 
-import javax.xml.bind.DatatypeConverter;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.util.List;
@@ -131,13 +130,11 @@ public class IncomingMessageThread implements Runnable {
 
         SignalProtocolAddress serverAddress = new SignalProtocolAddress("SERVER", 0);
 
-        byte[] hashedPassword = Main.hashData(password);
-        byte[] encryptedHashedPassword = SignalCrypto.encryptByteMessage(hashedPassword, serverAddress, bundle.getPreKeyBundle());
+        byte[] encryptedPassword = SignalCrypto.encryptStringMessage(password, serverAddress, bundle.getPreKeyBundle());
 
-        byte[] hashedUsername = Main.hashData(username);
-        String base64Username = DatatypeConverter.printBase64Binary(hashedUsername);
+        String actualUsername = Main.getActualUsername(username);
 
-        SignalEncryptedPasswordSend passwordSend = new SignalEncryptedPasswordSend(encryptedHashedPassword, base64Username);
+        SignalEncryptedPasswordSend passwordSend = new SignalEncryptedPasswordSend(encryptedPassword, actualUsername);
 
         OutgoingMessageThread.addOutgoingMessage(passwordSend);
 

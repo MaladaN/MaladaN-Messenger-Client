@@ -4,18 +4,18 @@ package net.strangled.maladan.serializables.Authentication;
 public class ServerLogin implements java.io.Serializable {
     //Used by the client to login to the server
 
-    private String EncodedHashedUsername;
+    private String username;
     private byte[] serializedIdentityKey;
     private byte[] encryptedPassword;
 
     public ServerLogin(String encodedHashedUsername, byte[] encryptedPassword, byte[] serializedIdentityKey) {
-        EncodedHashedUsername = encodedHashedUsername;
+        username = encodedHashedUsername;
         this.encryptedPassword = encryptedPassword;
         this.serializedIdentityKey = serializedIdentityKey;
     }
 
-    public String getEncodedHashedUsername() {
-        return EncodedHashedUsername;
+    public String getUsername() {
+        return username;
     }
 
     public byte[] getEncryptedPassword() {

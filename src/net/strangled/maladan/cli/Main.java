@@ -130,7 +130,7 @@ public class Main {
 
     //takes string username passed in by the user and turns it into user's actual
     //base64 representation of their byte username.
-    private static String getActualUsername(String originalUsername) throws Exception {
+    public static String getActualUsername(String originalUsername) throws Exception {
         byte[] hashedUsername = hashData(originalUsername);
         return DatatypeConverter.printBase64Binary(hashedUsername);
     }
@@ -213,8 +213,7 @@ public class Main {
         if (user != null) {
             String username = user.getUsername();
 
-            byte[] hashedPassword = hashData(password);
-            byte[] encryptedPassword = SignalCrypto.encryptByteMessage(hashedPassword, address, null);
+            byte[] encryptedPassword = SignalCrypto.encryptStringMessage(password, address, null);
 
             ServerLogin login = new ServerLogin(username, encryptedPassword, serializedKey);
 
@@ -234,13 +233,13 @@ public class Main {
 
         InitData data = SignalCrypto.initStore();
 
-        byte[] hashedUsername = hashData(username);
-        ServerInit init = new ServerInit(hashedUsername, uniqueId, data);
+        String actualUsername = getActualUsername(username);
+        ServerInit init = new ServerInit(actualUsername, uniqueId, data);
 
         IncomingMessageThread.setCredentials(password, username);
         OutgoingMessageThread.addOutgoingMessage(init);
 
-        LocalLoginDataStore.saveLocaluser(new User(true, getActualUsername(username)));
+        LocalLoginDataStore.saveLocaluser(new User(true, actualUsername));
 
         return waitForAuthData();
     }
