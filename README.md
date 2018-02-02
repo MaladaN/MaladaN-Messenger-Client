@@ -4,7 +4,7 @@ An end to end encrypted Messenger that uses the signal protocol over the I2P net
 Development IDE: Intellij IDEA
 
 # Required Libraries:
-com.h2database:h2:1.4.195
+com.h2database:h2:1.4.196
 
 net.i2p.client:streaming:0.9.30
 
