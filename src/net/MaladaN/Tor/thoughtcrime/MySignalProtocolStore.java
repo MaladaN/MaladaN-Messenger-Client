@@ -118,7 +118,7 @@ public class MySignalProtocolStore implements SignalProtocolStore {
     }
 
     @Override
-    public PreKeyRecord loadPreKey(int i) throws InvalidKeyIdException {
+    public PreKeyRecord loadPreKey(int i) {
         Connection conn = GetSQLConnection.getConn();
         PreKeyRecord recoveredRecord = null;
         if (conn != null) {
