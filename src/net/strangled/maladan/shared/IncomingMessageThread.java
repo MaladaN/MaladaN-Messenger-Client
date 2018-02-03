@@ -39,25 +39,8 @@ public class IncomingMessageThread implements Runnable {
         registrationFlag = true;
     }
 
-    public static synchronized String getPassword() {
-        return IncomingMessageThread.password;
-    }
-
-    public static synchronized String getUsername() {
-        return IncomingMessageThread.username;
-    }
-
-    public static synchronized void clearLoginData() {
-        IncomingMessageThread.password = "";
-        IncomingMessageThread.username = "";
-    }
-
     public static synchronized AuthResults getAuthResults() {
         return IncomingMessageThread.loginResults;
-    }
-
-    public static synchronized void setAuthResults(AuthResults results) {
-        IncomingMessageThread.loginResults = results;
     }
 
     public static synchronized void clearAuthResults() {
@@ -73,9 +56,7 @@ public class IncomingMessageThread implements Runnable {
     }
 
     public static synchronized List<MMessageObject> getIncomingMessages() {
-        Vector<MMessageObject> objects = new Vector<>();
-        objects.addAll(IncomingMessageThread.incomingMessages);
-        return objects;
+        return new Vector<>(IncomingMessageThread.incomingMessages);
     }
 
     public static synchronized void deleteMessageObjects(List<MMessageObject> objectsToRemove) {
@@ -99,7 +80,7 @@ public class IncomingMessageThread implements Runnable {
                     returnLoginResults(encryptedLoginResponseState);
 
                 } else if (incoming instanceof LoginResponseState) {
-                    IncomingMessageThread.setAuthResults(new AuthResults("Failed to Login", false));
+                    loginResults = new AuthResults("Failed to Login", false);
 
                 } else if (incoming instanceof EncryptedRegistrationResponseState) {
                     EncryptedRegistrationResponseState encryptedRegistrationResponseState = (EncryptedRegistrationResponseState) incoming;
@@ -121,12 +102,9 @@ public class IncomingMessageThread implements Runnable {
     }
 
     private void registrationSendPassword(ServerResponsePreKeyBundle bundle) throws Exception {
-        while (IncomingMessageThread.getPassword().equals("")) {
+        while (password.equals("")) {
             Thread.sleep(1000);
         }
-
-        String password = IncomingMessageThread.getPassword();
-        String username = IncomingMessageThread.getUsername();
 
         SignalProtocolAddress serverAddress = new SignalProtocolAddress("SERVER", 0);
 
@@ -138,7 +116,8 @@ public class IncomingMessageThread implements Runnable {
 
         OutgoingMessageThread.addOutgoingMessage(passwordSend);
 
-        IncomingMessageThread.clearLoginData();
+        password = "";
+        username = "";
         registrationFlag = false;
     }
 
@@ -147,9 +126,9 @@ public class IncomingMessageThread implements Runnable {
         LoginResponseState state = (LoginResponseState) net.strangled.maladan.cli.Main.reconstructSerializedObject(serializedLoginResponseState);
 
         if (state.isValidLogin()) {
-            IncomingMessageThread.setAuthResults(new AuthResults("Logged In Successfully", true));
+            loginResults = new AuthResults("Logged In Successfully", true);
         } else {
-            IncomingMessageThread.setAuthResults(new AuthResults("Failed to Login.", false));
+            loginResults = new AuthResults("Failed to Login.", false);
         }
     }
 
@@ -159,9 +138,9 @@ public class IncomingMessageThread implements Runnable {
         boolean loginState = state.isValidRegistration();
 
         if (loginState) {
-            IncomingMessageThread.setAuthResults(new AuthResults("Successfully Registered.", true));
+            loginResults = new AuthResults("Successfully Registered.", true);
         } else {
-            IncomingMessageThread.setAuthResults(new AuthResults("Registration Failed.", false));
+            loginResults = new AuthResults("Registration Failed.", false);
         }
     }
 
