@@ -294,47 +294,58 @@ public class Main {
 
         try (InputStream in = new FileInputStream(encryptedFilePath)) {
             User user = LocalLoginDataStore.getData();
-            String ourUsername = user.getUsername();
 
-            File temporaryFile = new File(encryptedFilePath);
-            byte[] buffer = new byte[FileConstants.bufferLength];
+            if (user != null) {
+                String ourUsername = user.getUsername();
+
+                File temporaryFile = new File(encryptedFilePath);
+                byte[] buffer = new byte[FileConstants.bufferLength];
 
 
-            float numberOfFileObjectsTemp = (float) temporaryFile.length() / (float) FileConstants.bufferLength;
-            float subtractionValue = numberOfFileObjectsTemp % 1;
-            boolean needToClean = !(subtractionValue == 0);
+                //handles the fact that the file will likely not exactly fit into the buffer sizes.
+                //If the result of attempting to divide the length of the file by the buffer returns
+                //a floating point value, the number of buffers is increased by one.
 
-            if (needToClean) {
-                numberOfFileObjectsTemp -= subtractionValue;
-                numberOfFileObjectsTemp++;
-            }
+                float numberOfFileObjectsTemp = (float) temporaryFile.length() / (float) FileConstants.bufferLength;
+                float subtractionValue = numberOfFileObjectsTemp % 1;
+                boolean needToClean = !(subtractionValue == 0);
 
-            int numberOfFileObjects = (int) numberOfFileObjectsTemp;
-            System.out.println("number of objects to send: " + numberOfFileObjects);
 
-            int numberOfFileObjectsIncrementer = numberOfFileObjects - 1;
-
-            int i = 0;
-            while (in.read(buffer) > 0) {
-                if (i == 0) {
-                    FileInitiation fileStart = new FileInitiation(temporaryFile.length(), ourUsername, actualRecipientUsername, buffer);
-                    System.out.println("Made file start at: " + i + "\n" + fileStart.toString());
-
-                } else if (i == numberOfFileObjectsIncrementer) {
-                    FileEnd fileEnd = new FileEnd(ourUsername, buffer);
-                    System.out.println("Made file end at: " + i + "\n" + fileEnd.toString());
-                } else {
-                    FileSpan fileSpan = new FileSpan(ourUsername, buffer);
-                    System.out.println("Made file span piece at: " + i + "\n" + fileSpan.toString());
+                if (needToClean) {
+                    numberOfFileObjectsTemp -= subtractionValue;
+                    numberOfFileObjectsTemp++;
                 }
-                i++;
+
+                int numberOfFileObjects = (int) numberOfFileObjectsTemp;
+                System.out.println("number of objects to send: " + numberOfFileObjects);
+
+                int numberOfFileObjectsIncrementer = numberOfFileObjects - 1;
+
+                int i = 0;
+                while (in.read(buffer) > 0) {
+                    if (i == 0) {
+                        FileInitiation fileStart = new FileInitiation(temporaryFile.length(), ourUsername, actualRecipientUsername, buffer);
+                        System.out.println("Made file start at: " + i + "\n" + fileStart.toString());
+
+                    } else if (i == numberOfFileObjectsIncrementer) {
+                        FileEnd fileEnd = new FileEnd(ourUsername, buffer);
+                        System.out.println("Made file end at: " + i + "\n" + fileEnd.toString());
+                    } else {
+                        FileSpan fileSpan = new FileSpan(ourUsername, buffer);
+                        System.out.println("Made file span piece at: " + i + "\n" + fileSpan.toString());
+                    }
+                    i++;
+                }
+
+            } else {
+                throw new Exception("Local user object is null.");
             }
         }
         return true;
     }
 
     //returns file path to new encrypted file.
-    static String encryptFile(String filePath, String actualRecipientUsername) throws Exception {
+    private static String encryptFile(String filePath, String actualRecipientUsername) throws Exception {
         File tempFile = new File("Files");
         if (!tempFile.exists()) {
             tempFile.mkdir();
@@ -352,6 +363,8 @@ public class Main {
              OutputStream out = new FileOutputStream(temporaryFilename, true)) {
 
             byte[] buffer = new byte[FileConstants.encryptionBufferLength];
+
+            //read in buffer of file, encrypt buffer, and write buffer to disk in new encrypted file.
 
             while ((in.read(buffer)) > 0) {
                 byte[] encryptedBuffer = SignalCrypto.encryptByteMessage(buffer, new SignalProtocolAddress(actualRecipientUsername, 0), bundle);
