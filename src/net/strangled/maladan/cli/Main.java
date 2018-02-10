@@ -322,17 +322,35 @@ public class Main {
                 int numberOfFileObjectsIncrementer = numberOfFileObjects - 1;
 
                 int i = 0;
+                SignalProtocolAddress serverAddress = new SignalProtocolAddress("SERVER", 0);
+
                 while (in.read(buffer) > 0) {
                     if (i == 0) {
                         FileInitiation fileStart = new FileInitiation(temporaryFile.length(), ourUsername, actualRecipientUsername, buffer);
-                        System.out.println("Made file start at: " + i + "\n" + fileStart.toString());
+
+                        byte[] serializedEncryptedFileStart = SignalCrypto.encryptByteMessage(Main.serializeObject(fileStart), serverAddress, null);
+                        EncryptedFileInitiation eFI = new EncryptedFileInitiation(serializedEncryptedFileStart);
+
+                        OutgoingMessageThread.addOutgoingMessage(eFI);
+                        System.out.println("Added Encrypted File Initiation" + i + " to outThread.");
 
                     } else if (i == numberOfFileObjectsIncrementer) {
                         FileEnd fileEnd = new FileEnd(ourUsername, buffer);
-                        System.out.println("Made file end at: " + i + "\n" + fileEnd.toString());
+
+                        byte[] serializedEncryptedFileEnd = SignalCrypto.encryptByteMessage(Main.serializeObject(fileEnd), serverAddress, null);
+                        EncryptedFileEnd eFE = new EncryptedFileEnd(serializedEncryptedFileEnd);
+
+                        OutgoingMessageThread.addOutgoingMessage(eFE);
+                        System.out.println("Added Encrypted File End" + i + " to outThread.");
+
                     } else {
                         FileSpan fileSpan = new FileSpan(ourUsername, buffer);
-                        System.out.println("Made file span piece at: " + i + "\n" + fileSpan.toString());
+
+                        byte[] serializedEncryptedFileSpan = SignalCrypto.encryptByteMessage(Main.serializeObject(fileSpan), serverAddress, null);
+                        EncryptedFileSpan eFS = new EncryptedFileSpan(serializedEncryptedFileSpan);
+
+                        OutgoingMessageThread.addOutgoingMessage(eFS);
+                        System.out.println("Added Encrypted File Span" + i + " to outThread.");
                     }
                     i++;
                 }
@@ -341,6 +359,10 @@ public class Main {
                 throw new Exception("Local user object is null.");
             }
         }
+
+        File tempFile = new File(encryptedFilePath);
+        tempFile.delete();
+
         return true;
     }
 
