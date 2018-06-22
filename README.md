@@ -4,13 +4,13 @@ An end to end encrypted Messenger that uses the signal protocol over the I2P net
 Development IDE: Intellij IDEA
 
 # Required Libraries:
-com.h2database:h2:1.4.196
+com.h2database:h2:1.4.197
 
-net.i2p.client:streaming:0.9.30
+net.i2p.client:streaming:0.9.34
 
-net.i2p:i2p:0.9.30
+net.i2p:i2p:0.9.34
 
-org.whispersystems:signal-protocol-java:2.4.0
+org.whispersystems:signal-protocol-java:2.6.2
 
 # Legal things
 Cryptography Notice
