@@ -20,7 +20,7 @@ import org.whispersystems.libsignal.IdentityKey;
 import org.whispersystems.libsignal.SignalProtocolAddress;
 import org.whispersystems.libsignal.state.PreKeyBundle;
 
-import javax.xml.bind.DatatypeConverter;
+import java.util.Base64;
 import java.io.*;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -132,7 +132,8 @@ public class Main {
     //base64 representation of their byte username.
     public static String getActualUsername(String originalUsername) throws Exception {
         byte[] hashedUsername = hashData(originalUsername);
-        return DatatypeConverter.printBase64Binary(hashedUsername);
+        Base64.Encoder encoder = Base64.getEncoder();
+        return encoder.encodeToString(hashedUsername);
     }
 
     //takes the base64 username of a possible message recipient and checks if we have
