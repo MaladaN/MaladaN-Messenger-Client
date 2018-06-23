@@ -4,10 +4,7 @@ import org.whispersystems.libsignal.*;
 import org.whispersystems.libsignal.protocol.CiphertextMessage;
 import org.whispersystems.libsignal.protocol.PreKeySignalMessage;
 import org.whispersystems.libsignal.protocol.SignalMessage;
-import org.whispersystems.libsignal.state.PreKeyBundle;
-import org.whispersystems.libsignal.state.PreKeyRecord;
-import org.whispersystems.libsignal.state.SignalProtocolStore;
-import org.whispersystems.libsignal.state.SignedPreKeyRecord;
+import org.whispersystems.libsignal.state.*;
 import org.whispersystems.libsignal.util.KeyHelper;
 
 import java.util.ArrayList;
@@ -37,8 +34,8 @@ public class SignalCrypto {
 
     private static boolean trustIdentity(SignalProtocolAddress address, IdentityKey key) {
         SignalProtocolStore protocolStore = new MySignalProtocolStore();
-        boolean contactedBefore = protocolStore.isTrustedIdentity(address, null);
-        boolean isAlreadyTrusted = protocolStore.isTrustedIdentity(address, key);
+        boolean contactedBefore = protocolStore.isTrustedIdentity(address, null, IdentityKeyStore.Direction.SENDING);
+        boolean isAlreadyTrusted = protocolStore.isTrustedIdentity(address, key, IdentityKeyStore.Direction.SENDING);
 
         //can be expanded at a later time if necessary
         if (!contactedBefore && !isAlreadyTrusted) {

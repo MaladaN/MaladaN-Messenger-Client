@@ -3,7 +3,6 @@ package net.MaladaN.Tor.thoughtcrime;
 
 import org.whispersystems.libsignal.IdentityKey;
 import org.whispersystems.libsignal.IdentityKeyPair;
-import org.whispersystems.libsignal.InvalidKeyIdException;
 import org.whispersystems.libsignal.SignalProtocolAddress;
 import org.whispersystems.libsignal.state.PreKeyRecord;
 import org.whispersystems.libsignal.state.SessionRecord;
@@ -61,9 +60,9 @@ public class MySignalProtocolStore implements SignalProtocolStore {
     }
 
     @Override
-    public void saveIdentity(SignalProtocolAddress signalProtocolAddress, IdentityKey identityKey) {
+    public boolean saveIdentity(SignalProtocolAddress signalProtocolAddress, IdentityKey identityKey) {
         Connection conn = GetSQLConnection.getConn();
-        boolean alreadyExists = isTrustedIdentity(signalProtocolAddress, identityKey);
+        boolean alreadyExists = isTrustedIdentity(signalProtocolAddress, identityKey, Direction.SENDING);
         if (conn != null && !alreadyExists) {
             try {
                 String sql = "INSERT INTO identityKeyStorage (signalProtocolAddress, identityKey) VALUES (?, ?)";
@@ -72,14 +71,17 @@ public class MySignalProtocolStore implements SignalProtocolStore {
                 ps.setBytes(2, identityKey.serialize());
                 ps.execute();
                 conn.close();
+                return true;
             } catch (Exception e) {
                 e.printStackTrace();
+                return false;
             }
         }
+        return false;
     }
 
     @Override
-    public boolean isTrustedIdentity(SignalProtocolAddress signalProtocolAddress, IdentityKey identityKey) {
+    public boolean isTrustedIdentity(SignalProtocolAddress signalProtocolAddress, IdentityKey identityKey, Direction direction) {
         Connection conn = GetSQLConnection.getConn();
         boolean isTrusted = false;
         if (identityKey != null) {
@@ -334,7 +336,7 @@ public class MySignalProtocolStore implements SignalProtocolStore {
     }
 
     @Override
-    public SignedPreKeyRecord loadSignedPreKey(int i) throws InvalidKeyIdException {
+    public SignedPreKeyRecord loadSignedPreKey(int i) {
         Connection conn = GetSQLConnection.getConn();
         SignedPreKeyRecord pkr = null;
         if (conn != null) {
