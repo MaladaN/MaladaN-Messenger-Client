@@ -20,10 +20,10 @@ import org.whispersystems.libsignal.IdentityKey;
 import org.whispersystems.libsignal.SignalProtocolAddress;
 import org.whispersystems.libsignal.state.PreKeyBundle;
 
-import java.util.Base64;
 import java.io.*;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Base64;
 import java.util.Scanner;
 import java.util.UUID;
 
@@ -121,11 +121,19 @@ public class Main {
     }
 
     public static byte[] serializeObject(Object object) throws IOException {
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        ObjectOutput out = new ObjectOutputStream(bos);
-        out.writeObject(object);
-        out.flush();
-        return bos.toByteArray();
+        try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
+            ObjectOutput out = new ObjectOutputStream(bos);
+            out.writeObject(object);
+            out.flush();
+            return bos.toByteArray();
+        }
+    }
+
+    public static Object reconstructSerializedObject(byte[] object) throws Exception {
+        try (ByteArrayInputStream bis = new ByteArrayInputStream(object)) {
+            ObjectInput in = new ObjectInputStream(bis);
+            return in.readObject();
+        }
     }
 
     //takes string username passed in by the user and turns it into user's actual
@@ -162,12 +170,6 @@ public class Main {
             IncomingMessageThread.setUserBundle(null);
         }
         return requestedUserBundle;
-    }
-
-    public static Object reconstructSerializedObject(byte[] object) throws Exception {
-        ByteArrayInputStream bis = new ByteArrayInputStream(object);
-        ObjectInput in = new ObjectInputStream(bis);
-        return in.readObject();
     }
 
     static I2PSocket connect(String host, int port) {

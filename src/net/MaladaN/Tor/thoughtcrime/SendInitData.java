@@ -18,24 +18,53 @@ public class SendInitData implements java.io.Serializable {
     private byte[] identityKey;
 
     public SendInitData(int registrationId, List<PreKeyRecord> preKeys, SignedPreKeyRecord signedPreKey, IdentityKey identityKey) {
-        if (registrationId != 0 && preKeys != null && signedPreKey != null && identityKey != null) {
+        if (registrationId != 0 && identityKey != null) {
             this.registrationId = registrationId;
 
-            for (PreKeyRecord record : preKeys) {
-                this.preKeys.add(new PreKeyPublic(record.getKeyPair().getPublicKey(), record.getId()));
-            }
+            //add the temporary pre keys (deleted by the server on use)
+            addPreKeys(preKeys);
 
-            this.signedPreKeyId = signedPreKey.getId();
-            this.signedPreKeyPublic = signedPreKey.getKeyPair().getPublicKey().serialize();
-            this.signedPreKeySignature = signedPreKey.getSignature();
+            //add the signed pre key (changed on a weekly basis)
+            updateSignedPreKey(signedPreKey);
+
             this.identityKey = identityKey.serialize();
         }
     }
 
+    public void updateSignedPreKey(SignedPreKeyRecord signedPreKey) {
+        if (signedPreKey != null) {
+            this.signedPreKeyId = signedPreKey.getId();
+            this.signedPreKeyPublic = signedPreKey.getKeyPair().getPublicKey().serialize();
+            this.signedPreKeySignature = signedPreKey.getSignature();
+        }
+    }
+
+    public void addPreKeys(List<PreKeyRecord> preKeys) {
+        if (preKeys != null) {
+            this.preKeys.clear();
+
+            for (PreKeyRecord record : preKeys) {
+                this.preKeys.add(new PreKeyPublic(record.getKeyPair().getPublicKey(), record.getId()));
+            }
+        }
+    }
+
+    public int getNumberOfPreKeys() {
+        return this.preKeys.size();
+    }
+
     public ServerResponsePreKeyBundle getServerResponsePreKeyBundle() {
         int randomPreKeyIdPuller = ThreadLocalRandom.current().nextInt(0, preKeys.size());
-        return new ServerResponsePreKeyBundle(registrationId, preKeys.get(randomPreKeyIdPuller), signedPreKeyId, signedPreKeyPublic, signedPreKeySignature, identityKey);
 
+        try {
+            PreKeyPublic recordToSend = preKeys.get(randomPreKeyIdPuller);
+            preKeys.remove(randomPreKeyIdPuller);
+
+            return new ServerResponsePreKeyBundle(registrationId, recordToSend, signedPreKeyId, signedPreKeyPublic, signedPreKeySignature, identityKey);
+
+        } catch (IndexOutOfBoundsException e) {
+            return null;
+        }
     }
 
     public IdentityKey getIdKey() throws Exception {

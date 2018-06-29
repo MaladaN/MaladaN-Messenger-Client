@@ -23,7 +23,7 @@ public class ServerInit implements java.io.Serializable {
         SignalProtocolStore store = new MySignalProtocolStore();
         this.username = username;
         this.uniqueId = uniqueId;
-        if (isNewUser = (!(data == null))) {
+        if ((isNewUser = (data != null))) {
             this.initData = new SendInitData(store.getLocalRegistrationId(), data.getPreKeyRecords(), store.loadSignedPreKey(data.getSignedPreKeyId()), store.getIdentityKeyPair().getPublicKey());
         }
         isNewUser = (uniqueId != null);

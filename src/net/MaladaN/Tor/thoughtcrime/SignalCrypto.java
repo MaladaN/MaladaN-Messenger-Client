@@ -133,7 +133,7 @@ public class SignalCrypto {
         //create data
         IdentityKeyPair identityKeyPair = KeyHelper.generateIdentityKeyPair();
         int registrationId = KeyHelper.generateRegistrationId(true);
-        List<PreKeyRecord> preKeys = KeyHelper.generatePreKeys(2, 1000);
+        List<PreKeyRecord> preKeys = KeyHelper.generatePreKeys(2, 100);
         SignalProtocolStore signalProtocolStore = new MySignalProtocolStore();
 
         ArrayList<PreKeyRecord> records = new ArrayList<>();
