@@ -10,6 +10,7 @@ import net.i2p.client.streaming.I2PSocketManagerFactory;
 import net.i2p.data.Destination;
 import net.strangled.maladan.serializables.Authentication.*;
 import net.strangled.maladan.serializables.Messaging.*;
+import net.strangled.maladan.shared.AuthResults;
 import net.strangled.maladan.shared.IncomingMessageThread;
 import net.strangled.maladan.shared.LocalLoginDataStore;
 import net.strangled.maladan.shared.OutgoingMessageThread;
@@ -289,10 +290,6 @@ public class Main {
 
     static boolean sendFileMessage(String fileName, String recipientUsername) throws Exception {
 
-        //TODO continue File sending procedure
-        //TODO next step after containers: add handlers for each new class coming into the server.
-        //TODO " figure out a system of storing the reconstructed file on the server in escrow until the recipient user is ready to receive it.
-        //TODO " Send file to client using the same classes for sending to the server, and create reception handlers for the client to save the file in a preferred location on local disk.
         String actualRecipientUsername = getActualUsername(recipientUsername);
         String encryptedFilePath = encryptFile(fileName, actualRecipientUsername);
 

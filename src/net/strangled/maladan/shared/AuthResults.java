@@ -1,4 +1,4 @@
-package net.strangled.maladan.cli;
+package net.strangled.maladan.shared;
 
 
 public class AuthResults {
@@ -6,7 +6,7 @@ public class AuthResults {
     private String formattedResults;
     private boolean valid;
 
-    public AuthResults(String formattedResults, boolean valid) {
+    AuthResults(String formattedResults, boolean valid) {
         this.formattedResults = formattedResults;
         this.valid = valid;
     }
