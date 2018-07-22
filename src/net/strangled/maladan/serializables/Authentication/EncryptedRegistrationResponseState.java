@@ -1,13 +1,15 @@
 package net.strangled.maladan.serializables.Authentication;
 
-public class EncryptedRegistrationResponseState implements java.io.Serializable {
+public class EncryptedRegistrationResponseState implements java.io.Serializable, IEncryptedAuth {
     private byte[] encryptedState;
 
-    public EncryptedRegistrationResponseState(byte[] encryptedState) {
-        this.encryptedState = encryptedState;
+    @Override
+    public void storeEncryptedData(byte[] encryptedData) {
+        this.encryptedState = encryptedData;
     }
 
-    public byte[] getEncryptedState() {
-        return encryptedState;
+    @Override
+    public byte[] getEncryptedData() {
+        return this.encryptedState;
     }
 }

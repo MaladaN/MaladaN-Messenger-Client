@@ -1,14 +1,16 @@
 package net.strangled.maladan.serializables.Messaging;
 
-public class EncryptedFileEnd implements java.io.Serializable {
+public class EncryptedFileEnd implements java.io.Serializable, IEncryptedMessage {
 
     private byte[] serializedEncryptedFileEnd;
 
-    public EncryptedFileEnd(byte[] serializedEncryptedFileEnd) {
-        this.serializedEncryptedFileEnd = serializedEncryptedFileEnd;
+    @Override
+    public void storeEncryptedMessage(byte[] message) {
+        this.serializedEncryptedFileEnd = message;
     }
 
-    public byte[] getSerializedEncryptedFileEnd() {
-        return serializedEncryptedFileEnd;
+    @Override
+    public byte[] getEncryptedMessage() {
+        return this.serializedEncryptedFileEnd;
     }
 }

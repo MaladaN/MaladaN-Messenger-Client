@@ -1,15 +1,17 @@
 package net.strangled.maladan.serializables.Authentication;
 
-public class EncryptedClientPreKeyBundle implements java.io.Serializable {
+public class EncryptedClientPreKeyBundle implements java.io.Serializable, IEncryptedAuth {
     //stores an encrypted client pre key bundle for transport
 
     private byte[] encryptedSerializedClientPreKeyBundle;
 
-    public EncryptedClientPreKeyBundle(byte[] encryptedSerializedClientPreKeyBundle) {
-        this.encryptedSerializedClientPreKeyBundle = encryptedSerializedClientPreKeyBundle;
+    @Override
+    public void storeEncryptedData(byte[] encryptedData) {
+        this.encryptedSerializedClientPreKeyBundle = encryptedData;
     }
 
-    public byte[] getEncryptedSerializedClientPreKeyBundle() {
-        return encryptedSerializedClientPreKeyBundle;
+    @Override
+    public byte[] getEncryptedData() {
+        return this.encryptedSerializedClientPreKeyBundle;
     }
 }

@@ -1,15 +1,17 @@
 package net.strangled.maladan.serializables.Messaging;
 
-public class EncryptedMMessageObject implements java.io.Serializable {
+public class EncryptedMMessageObject implements java.io.Serializable, IEncryptedMessage {
     //Stores encrypted MMessageObject class
 
     private byte[] encryptedSerializedMMessageObject;
 
-    public EncryptedMMessageObject(byte[] encryptedSerializedMMessageObject) {
-        this.encryptedSerializedMMessageObject = encryptedSerializedMMessageObject;
+    @Override
+    public void storeEncryptedMessage(byte[] message) {
+        this.encryptedSerializedMMessageObject = message;
     }
 
-    public byte[] getEncryptedSerializedMMessageObject() {
-        return encryptedSerializedMMessageObject;
+    @Override
+    public byte[] getEncryptedMessage() {
+        return this.encryptedSerializedMMessageObject;
     }
 }

@@ -122,7 +122,7 @@ public class IncomingMessageThread implements Runnable {
     }
 
     private void returnLoginResults(EncryptedLoginResponseState encryptedLoginResponseState) throws Exception {
-        byte[] serializedLoginResponseState = SignalCrypto.decryptMessage(encryptedLoginResponseState.getEncryptedState(), new SignalProtocolAddress("SERVER", 0));
+        byte[] serializedLoginResponseState = SignalCrypto.decryptMessage(encryptedLoginResponseState.getEncryptedData(), new SignalProtocolAddress("SERVER", 0));
         LoginResponseState state = (LoginResponseState) net.strangled.maladan.cli.Main.reconstructSerializedObject(serializedLoginResponseState);
 
         if (state.isValidLogin()) {
@@ -133,7 +133,7 @@ public class IncomingMessageThread implements Runnable {
     }
 
     private void returnRegistrationResults(EncryptedRegistrationResponseState encryptedRegistrationResponseState) throws Exception {
-        byte[] serializedRegistrationResponseState = SignalCrypto.decryptMessage(encryptedRegistrationResponseState.getEncryptedState(), new SignalProtocolAddress("SERVER", 0));
+        byte[] serializedRegistrationResponseState = SignalCrypto.decryptMessage(encryptedRegistrationResponseState.getEncryptedData(), new SignalProtocolAddress("SERVER", 0));
         RegistrationResponseState state = (RegistrationResponseState) net.strangled.maladan.cli.Main.reconstructSerializedObject(serializedRegistrationResponseState);
         boolean loginState = state.isValidRegistration();
 
@@ -145,14 +145,14 @@ public class IncomingMessageThread implements Runnable {
     }
 
     private void handleRequestedUserPreKeyBundle(EncryptedClientPreKeyBundle bundle) throws Exception {
-        byte[] serializedResponseBundle = SignalCrypto.decryptMessage(bundle.getEncryptedSerializedClientPreKeyBundle(), new SignalProtocolAddress("SERVER", 0));
+        byte[] serializedResponseBundle = SignalCrypto.decryptMessage(bundle.getEncryptedData(), new SignalProtocolAddress("SERVER", 0));
         ServerResponsePreKeyBundle serverResponsePreKeyBundle = (ServerResponsePreKeyBundle) Main.reconstructSerializedObject(serializedResponseBundle);
 
         IncomingMessageThread.setUserBundle(serverResponsePreKeyBundle.getPreKeyBundle());
     }
 
     private void handleIncomingMMessage(EncryptedMMessageObject object) throws Exception {
-        byte[] serializedMMessageObject = SignalCrypto.decryptMessage(object.getEncryptedSerializedMMessageObject(), new SignalProtocolAddress("SERVER", 0));
+        byte[] serializedMMessageObject = SignalCrypto.decryptMessage(object.getEncryptedMessage(), new SignalProtocolAddress("SERVER", 0));
         MMessageObject messageObject = (MMessageObject) Main.reconstructSerializedObject(serializedMMessageObject);
 
         incomingMessages.add(messageObject);

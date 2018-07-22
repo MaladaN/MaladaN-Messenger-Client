@@ -1,14 +1,16 @@
 package net.strangled.maladan.serializables.Messaging;
 
-public class EncryptedFileSpan implements java.io.Serializable {
+public class EncryptedFileSpan implements java.io.Serializable, IEncryptedMessage {
 
     private byte[] serializedEncryptedFileSpan;
 
-    public EncryptedFileSpan(byte[] serializedEncryptedFileSpan) {
-        this.serializedEncryptedFileSpan = serializedEncryptedFileSpan;
+    @Override
+    public void storeEncryptedMessage(byte[] message) {
+        this.serializedEncryptedFileSpan = message;
     }
 
-    public byte[] getSerializedEncryptedFileSpan() {
-        return serializedEncryptedFileSpan;
+    @Override
+    public byte[] getEncryptedMessage() {
+        return this.serializedEncryptedFileSpan;
     }
 }

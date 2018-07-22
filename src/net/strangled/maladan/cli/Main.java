@@ -8,10 +8,7 @@ import net.i2p.client.streaming.I2PSocket;
 import net.i2p.client.streaming.I2PSocketManager;
 import net.i2p.client.streaming.I2PSocketManagerFactory;
 import net.i2p.data.Destination;
-import net.strangled.maladan.serializables.Authentication.EncryptedUser;
-import net.strangled.maladan.serializables.Authentication.ServerInit;
-import net.strangled.maladan.serializables.Authentication.ServerLogin;
-import net.strangled.maladan.serializables.Authentication.User;
+import net.strangled.maladan.serializables.Authentication.*;
 import net.strangled.maladan.serializables.Messaging.*;
 import net.strangled.maladan.shared.IncomingMessageThread;
 import net.strangled.maladan.shared.LocalLoginDataStore;
@@ -159,7 +156,9 @@ public class Main {
             byte[] serializedUser = serializeObject(sendUser);
             byte[] encryptedSerializedUser = SignalCrypto.encryptByteMessage(serializedUser, new SignalProtocolAddress("SERVER", 0), null);
 
-            EncryptedUser encryptedUser = new EncryptedUser(encryptedSerializedUser);
+            IEncryptedAuth encryptedUser = new EncryptedUser();
+            encryptedUser.storeEncryptedData(encryptedSerializedUser);
+
             OutgoingMessageThread.addOutgoingMessage(encryptedUser);
 
             while (IncomingMessageThread.getUserBundle() == null) {
@@ -275,7 +274,9 @@ public class Main {
 
                 byte[] serializedMMessageObject = Main.serializeObject(mMessageObject);
                 byte[] encryptedSerializedMessageObject = SignalCrypto.encryptByteMessage(serializedMMessageObject, new SignalProtocolAddress("SERVER", 0), null);
-                EncryptedMMessageObject encryptedMMessageObject = new EncryptedMMessageObject(encryptedSerializedMessageObject);
+
+                IEncryptedMessage encryptedMMessageObject = new EncryptedMMessageObject();
+                encryptedMMessageObject.storeEncryptedMessage(encryptedSerializedMessageObject);
 
                 OutgoingMessageThread.addOutgoingMessage(encryptedMMessageObject);
                 return true;
@@ -332,7 +333,8 @@ public class Main {
                         FileInitiation fileStart = new FileInitiation(temporaryFile.length(), ourUsername, actualRecipientUsername, buffer);
 
                         byte[] serializedEncryptedFileStart = SignalCrypto.encryptByteMessage(Main.serializeObject(fileStart), serverAddress, null);
-                        EncryptedFileInitiation eFI = new EncryptedFileInitiation(serializedEncryptedFileStart);
+                        IEncryptedMessage eFI = new EncryptedFileInitiation();
+                        eFI.storeEncryptedMessage(serializedEncryptedFileStart);
 
                         OutgoingMessageThread.addOutgoingMessage(eFI);
                         System.out.println("Added Encrypted File Initiation" + i + " to outThread.");
@@ -341,7 +343,9 @@ public class Main {
                         FileEnd fileEnd = new FileEnd(ourUsername, buffer);
 
                         byte[] serializedEncryptedFileEnd = SignalCrypto.encryptByteMessage(Main.serializeObject(fileEnd), serverAddress, null);
-                        EncryptedFileEnd eFE = new EncryptedFileEnd(serializedEncryptedFileEnd);
+
+                        IEncryptedMessage eFE = new EncryptedFileEnd();
+                        eFE.storeEncryptedMessage(serializedEncryptedFileEnd);
 
                         OutgoingMessageThread.addOutgoingMessage(eFE);
                         System.out.println("Added Encrypted File End" + i + " to outThread.");
@@ -350,7 +354,9 @@ public class Main {
                         FileSpan fileSpan = new FileSpan(ourUsername, buffer);
 
                         byte[] serializedEncryptedFileSpan = SignalCrypto.encryptByteMessage(Main.serializeObject(fileSpan), serverAddress, null);
-                        EncryptedFileSpan eFS = new EncryptedFileSpan(serializedEncryptedFileSpan);
+
+                        EncryptedFileSpan eFS = new EncryptedFileSpan();
+                        eFS.storeEncryptedMessage(serializedEncryptedFileSpan);
 
                         OutgoingMessageThread.addOutgoingMessage(eFS);
                         System.out.println("Added Encrypted File Span" + i + " to outThread.");

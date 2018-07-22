@@ -1,14 +1,16 @@
 package net.strangled.maladan.serializables.Messaging;
 
-public class EncryptedFileInitiation implements java.io.Serializable {
+public class EncryptedFileInitiation implements java.io.Serializable, IEncryptedMessage {
 
     private byte[] serializedEncryptedFileInitiation;
 
-    public EncryptedFileInitiation(byte[] serializedEncryptedFileInitiation) {
-        this.serializedEncryptedFileInitiation = serializedEncryptedFileInitiation;
+    @Override
+    public void storeEncryptedMessage(byte[] message) {
+        this.serializedEncryptedFileInitiation = message;
     }
 
-    public byte[] getSerializedEncryptedFileInitiation() {
+    @Override
+    public byte[] getEncryptedMessage() {
         return serializedEncryptedFileInitiation;
     }
 }

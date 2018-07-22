@@ -1,0 +1,12 @@
+<component name="libraryTable">
+  <library name="net.i2p.client:streaming:0.9.35" type="repository">
+    <properties maven-id="net.i2p.client:streaming:0.9.35" />
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/net/i2p/client/streaming/0.9.35/streaming-0.9.35.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/net/i2p/i2p/0.9.35/i2p-0.9.35.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/net/i2p/client/mstreaming/0.9.35/mstreaming-0.9.35.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

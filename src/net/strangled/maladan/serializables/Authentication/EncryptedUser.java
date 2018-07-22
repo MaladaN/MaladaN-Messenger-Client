@@ -1,15 +1,17 @@
 package net.strangled.maladan.serializables.Authentication;
 
-public class EncryptedUser implements java.io.Serializable {
+public class EncryptedUser implements java.io.Serializable, IEncryptedAuth {
     //Stored encrypted User class
 
     private byte[] encryptedSerializedUser;
 
-    public EncryptedUser(byte[] encryptedSerializedUser) {
-        this.encryptedSerializedUser = encryptedSerializedUser;
+    @Override
+    public void storeEncryptedData(byte[] encryptedData) {
+        this.encryptedSerializedUser = encryptedData;
     }
 
-    public byte[] getEncryptedSerializedUser() {
-        return encryptedSerializedUser;
+    @Override
+    public byte[] getEncryptedData() {
+        return this.encryptedSerializedUser;
     }
 }

@@ -6,9 +6,9 @@ Development IDE: Intellij IDEA
 # Required Libraries:
 com.h2database:h2:1.4.197
 
-net.i2p.client:streaming:0.9.34
+net.i2p.client:streaming:0.9.35
 
-net.i2p:i2p:0.9.34
+net.i2p:i2p:0.9.35
 
 org.whispersystems:signal-protocol-java:2.6.2
 
